@@ -4,7 +4,6 @@ import HomeView from './view/HomeView';
 import ProfileView from './view/ProfileView';
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import "./index.css"
-import "./fonts.css"
 
 const App: React.FC = () => {
   return (
