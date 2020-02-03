@@ -8,6 +8,7 @@ import Feed from './components/Feed';
 import Story from './components/Story';
 import FollowList from './components/FollowList';
 
+import { Form, Textarea } from "./style/Form"
 import Button, { TertiaryButton } from "./style/Button"
 
 enum TAB_SELECTION {
@@ -56,7 +57,10 @@ const HomeView: React.FC = () => {
         </ProfileSection>
 
         {/* New Status */}
-        <Button>New Status</Button>
+        <Form>
+          <Textarea placeholder="Craft your message" />
+          <Button>New Status</Button>
+        </Form>
 
         {/* Tabs */}
         <Tabs>
