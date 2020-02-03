@@ -1,19 +1,25 @@
 import React from 'react';
+import { useHistory } from "react-router-dom";
 
 interface Props {
   setCurrentForm: any
 }
 
 const SignUpForm: React.FC<Props> = ({ setCurrentForm }) => {
+  const history = useHistory()
   const toggleForm = (): void => {
     setCurrentForm()
+  }
+
+  const submitForm = (): void => {
+    history.push("/home")
   }
 
   return (
     <div>
       <form
         style={{ maxWidth: '500px'}}
-        className="bg-gray-800 shadow-md rounded px-8 pt-6 pb-8 mb-4 mx-auto"
+        className="bg-gray-800 rounded px-8 pt-6 pb-8 mb-4 mx-auto"
       >
         <div className="mb-4">
         <h2 className="text-2xl font-bold text-white">Sign Up - It's Free!</h2>
@@ -50,6 +56,7 @@ const SignUpForm: React.FC<Props> = ({ setCurrentForm }) => {
           <button
             className="bg-teal-600 hover:bg-teal-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             type="submit"
+            onClick={submitForm}
           >Sign up</button>
           <span
             onClick={toggleForm}

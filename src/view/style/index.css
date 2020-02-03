@@ -1,0 +1,7 @@
+@import url("https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap");
+html {
+  font-family: "Nunito Sans", sans-serif;
+  min-height: 100vh;
+  background-color: #2d3748;
+  color: #FFF;
+}

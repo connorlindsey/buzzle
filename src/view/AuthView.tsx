@@ -1,25 +1,41 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import SignUpForm from "./components/SignUpForm";
 import LoginForm from "./components/LoginForm";
-import AuthViewModel, { FORMS } from '../viewmodel/AuthViewModel';
+import AuthViewModel, { FORMS, AuthObserver } from '../viewmodel/AuthViewModel';
+import styled from 'styled-components'
+
+const Container = styled.div`
+  max-width: 600px;
+  margin: 1rem auto;
+`
 
 const AuthView: React.FC = () => {
-  const VM = new AuthViewModel();
+  const [VM] = useState(new AuthViewModel())
+  const [currentForm, setCurrentForm] = useState(VM.currentForm)
+
+  const onUpdate: AuthObserver = () => {
+    setCurrentForm(VM.currentForm)
+  }
+
+  useEffect(() => {
+    VM.attach(onUpdate)
+    return () => VM.detach(onUpdate)
+  })
 
   let form;
-  if (VM.currentForm === FORMS.SignUp) {
+  if (currentForm === FORMS.SignUp) {
     form = <SignUpForm setCurrentForm={() => VM.setCurrentForm()} />
   } else {
     form = <LoginForm setCurrentForm={() => VM.setCurrentForm()} />
   }
   
   return (
-    <div>
+    <Container>
       {/* Sign up card */}
-      <div>
+      <div className="mt-12">
         {form}
       </div>
-    </div> 
+    </Container> 
   );
 }
 

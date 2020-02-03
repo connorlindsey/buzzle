@@ -13,9 +13,10 @@ export default class User {
   following: ID[]
   story: Story
   feed: Feed
+  photo: string
 
-  constructor(email: string, password: string, name: string, alias: string) {
-    this.id = new ID();
+  constructor(email: string, password: string, name: string, alias: string, photo: string) {
+    this.id = new ID()
     this.email = email
     this.password = password
     this.name = name
@@ -24,6 +25,7 @@ export default class User {
     this.following = []
     this.story = new Story()
     this.feed = new Feed()
+    this.photo = photo
   }
 
   // ID

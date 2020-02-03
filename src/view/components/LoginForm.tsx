@@ -1,4 +1,5 @@
 import React from 'react';
+import { useHistory } from "react-router-dom";
 
 interface Props {
   setCurrentForm: any
@@ -6,15 +7,20 @@ interface Props {
 
 
 const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
+  const history = useHistory()
   const toggleForm = (): void => {
     setCurrentForm()
+  }
+
+  const submitForm = (): void => {
+    history.push("/home")
   }
 
   return (
     <div>
       <form
         style={{ maxWidth: '500px' }}
-        className="bg-gray-800 shadow-md rounded px-8 pt-6 pb-8 mb-4 mx-auto"
+        className="bg-gray-800 rounded px-8 pt-6 pb-8 mb-4 mx-auto"
       >
         <h2 className="text-2xl font-bold text-white">Welcome back!</h2>
         <div className="mb-4">
@@ -40,7 +46,7 @@ const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
         <div className="flex items-center justify-between">
           <button
             className="bg-teal-600 hover:bg-teal-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            type="submit"
+            onClick={submitForm}
           >Login</button>
           <span
             onClick={toggleForm}
