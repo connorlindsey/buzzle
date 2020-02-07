@@ -1,14 +1,14 @@
 import styled from "styled-components"
 
 interface ButtonProps {
-  secondary?: boolean
+  margin?: string
 }
 
-export default styled.button`
+export default styled.button<ButtonProps>`
   height: 32px;
   padding: 0 14px;
   font-size: 14px;
-  margin: 0 .5rem;
+  margin:${props => props.margin || `0 .05rem`};
   text-transform: uppercase;
   letter-spacing: 0.25;
   text-decoration: none;
@@ -35,10 +35,11 @@ export default styled.button`
   }
 `
 
-export const SecondaryButton = styled.button`
+export const SecondaryButton = styled.button<ButtonProps>`
   height: 32px;
   padding: 0 14px;
   font-size: 14px;
+  margin:${props => props.margin || `0 .05rem`};
   text-transform: uppercase;
   letter-spacing: 0.25;
   text-decoration: none;
@@ -66,12 +67,13 @@ export const SecondaryButton = styled.button`
   }
 `
 
-export const TertiaryButton = styled.button`
+export const TertiaryButton = styled.button<ButtonProps>`
   height: 32px;
   padding: 0 14px;
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.25;
+  margin:${props => props.margin || `0 .05rem`};
   text-decoration: none;
   outline: none;
   text-decoration: none;

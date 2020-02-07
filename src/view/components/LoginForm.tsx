@@ -1,19 +1,48 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useHistory } from "react-router-dom";
+import { FORMS } from "../AuthView"
+import UserService from '../../services/UserService';
 
 interface Props {
   setCurrentForm: any
 }
 
+enum STATUS {
+  READY,
+  LOADING,
+  ERROR,
+  DONE
+}
+
 
 const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
   const history = useHistory()
-  const toggleForm = (): void => {
-    setCurrentForm()
+  const [values, setValues] = useState({
+    alias: "",
+    password: "",
+  })
+  const [status, setStatus] = useState<STATUS>(STATUS.READY)
+  const [errorMessage, setErrorMessage] = useState<string>("")
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    setValues({ ...values, [event.target.name]: event.target.value })
   }
 
-  const submitForm = (): void => {
-    history.push("/home")
+  const submitForm = (event: React.FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    setStatus(STATUS.LOADING);
+    const result = UserService.login(values.alias, values.password)
+    if (result) {
+      setStatus(STATUS.ERROR)
+      setErrorMessage(result)
+    } else {
+      setStatus(STATUS.DONE)
+      history.push("/home")
+    }
+  }
+
+  const toggleForm = (): void => {
+    setCurrentForm(FORMS.SIGNUP)
   }
 
   return (
@@ -21,15 +50,19 @@ const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
       <form
         style={{ maxWidth: '500px' }}
         className="bg-gray-800 rounded px-8 pt-6 pb-8 mb-4 mx-auto"
+        onSubmit={submitForm}
       >
         <h2 className="text-2xl font-bold text-white">Welcome back!</h2>
+        {errorMessage && <h2 className="text-1xl font-bold text-red-500">{errorMessage}</h2>}
         <div className="mb-4">
-          <label className="text-left block text-gray-500 text-sm font-bold mb-2" htmlFor="newEmail">Email</label>
+          <label className="text-left block text-gray-500 text-sm font-bold mb-2" htmlFor="newEmail">Username</label>
           <input
             className="bg-gray-300 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="newEmail"
-            type="email"
-            placeholder="Email"
+            id="alias"
+            name="alias"
+            type="text"
+            placeholder="Your username"
+            onChange={handleInputChange}
             required
           />
         </div>
@@ -38,16 +71,18 @@ const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
           <input
             className="bg-gray-300 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="password"
+            name="password"
             type="password"
             placeholder="********"
+            onChange={handleInputChange}
             required
           />
         </div>
         <div className="flex items-center justify-between">
           <button
             className="bg-teal-600 hover:bg-teal-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            onClick={submitForm}
-          >Login</button>
+            type="submit"
+          >{(status === STATUS.LOADING) ? "Loading..." : "Login"}</button>
           <span
             onClick={toggleForm}
             className="inline-block align-baseline font-bold text-sm text-teal-500 hover:text-teal-400 cursor-pointer"

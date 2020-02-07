@@ -1,26 +1,23 @@
-import Alias from "./Alias"
 import Story from "./Story"
 import Feed from "./Feed"
-import ID from "./ID"
+import { v4 as uuid } from "uuid"
 
 export default class User {
-  id: ID
-  email: string
+  id: string
   password: string // TODO: Hash this somewhere
   name: string
-  alias: Alias
-  followers: ID[]
-  following: ID[]
+  alias: string
+  followers: User[]
+  following: User[]
   story: Story
   feed: Feed
   photo: string
 
-  constructor(email: string, password: string, name: string, alias: string, photo: string) {
-    this.id = new ID()
-    this.email = email
+  constructor(password: string, name: string, alias: string, photo: string) {
+    this.id = uuid()
     this.password = password
     this.name = name
-    this.alias = new Alias(alias)
+    this.alias = alias
     this.followers = []
     this.following = []
     this.story = new Story()
@@ -29,21 +26,12 @@ export default class User {
   }
 
   // ID
-  getID() {
+  get ID(): string {
     return this.id
-  }
-
-  // Email
-  setEmail(email: string) {
-    this.email = email
-  }
-  getEmail() {
-    return this.email
   }
 
   // Password
   setPassword(password: string) {
-    // TODO: Hash here maybe?
     this.password = password
   }
   getPassword() {
@@ -60,31 +48,37 @@ export default class User {
 
   // Alias
   setAlias(alias: string) {
-    this.alias = new Alias(alias)
+    this.alias = alias
   }
   getAlias() {
     return this.alias
   }
 
   // Followers
-  getFollowers() {
+  getFollowers(): User[] {
     return this.followers
   }
-  addFollower(userId: ID) {
-    this.followers.push(userId)
+  getFollower(userId: string): User | undefined {
+    return this.followers.find(f => f.id === userId);
   }
-  removeFollower(userId: ID) {
-    this.followers.filter(followerID => followerID !== userId)
+  addFollower(user: User): void {
+    this.followers.push(user)
+  }
+  removeFollower(user: User): void {
+    this.followers.filter(f => f.id !== user.id)
   }
 
   // Followers
-  getFollowing() {
+  getFollowing(): User[] {
     return this.following
   }
-  addFollowing(userId: ID) {
-    this.following.push(userId)
+  getFollowee(userId: string): User | undefined {
+    return this.following.find(f => f.id === userId);
   }
-  removeFollowing(userId: ID) {
-    this.following.filter(followeeID => followeeID !== userId)
+  addFollowing(user: User): void {
+    this.following.push(user)
+  }
+  removeFollowing(user: User): void {
+    this.followers.filter(f => f.id !== user.id)
   }
 }

@@ -6,4 +6,8 @@ export default class Story {
   constructor() {
     this.statuses = []
   }
+
+  addStatus(status: Status) {
+    this.statuses.unshift(status)
+  }
 }

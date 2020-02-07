@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { Link, useHistory } from 'react-router-dom'
 import styled from "styled-components"
-
-// import HomeViewModel from "../viewmodel/HomeViewModel"
 
 import Feed from './components/Feed';
 import Story from './components/Story';
@@ -10,6 +8,10 @@ import FollowList from './components/FollowList';
 
 import { Form, Textarea } from "./style/Form"
 import Button, { TertiaryButton } from "./style/Button"
+import UserService from '../services/UserService';
+import PleaseSignIn from './components/PleaseSignIn';
+import User from '../model/User';
+import StatusService from '../services/StatusService';
 
 enum TAB_SELECTION {
   FEED,
@@ -18,8 +20,18 @@ enum TAB_SELECTION {
   FOLLOWERS
 }
 
+// TODO: Add search box
 const HomeView: React.FC = () => {
+  const history = useHistory()
   const [selection, setSelection] = useState<TAB_SELECTION>(TAB_SELECTION.FEED)
+  const [user, setUser] = useState<User | null | undefined>()
+  const [message, setMessage] = useState<string>("") // Status textarea
+
+  useEffect(() => {
+    const user = UserService.getCurrentUser();
+    setUser(user);
+  }, [])
+
   let content;
   switch (selection) {
     case TAB_SELECTION.FEED:
@@ -36,42 +48,67 @@ const HomeView: React.FC = () => {
       break;
     default:
       content = <h2>An error has occurred</h2>
+  }
 
+  const updateMessage = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(event.target.value);
+  }
+
+  const createStatus = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (message.length === 0) {
+      return;
+    }
+    StatusService.createStatus(message)
+    setMessage("")
+  }
+
+  const logout = () => {
+    UserService.logout()
+    history.push("/")
   }
 
   return (
-    <Container>
-      {/* Profile Section */}
-      <Header>
-        {/* Info */}
-        <ProfileSection>
-          <ProfileInfo as={Link} to={`/profile/1234`}>
-            <ProfileImg src="https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1276&q=80" alt="Profile" />
-            <div>
-              <div>Profile Name</div>
-              <div>@alias</div>
-            </div>
+    <PleaseSignIn>
+      <Container>
+        {/* Profile Section */}
+        <Header>
+          {/* Info */}
+          <ProfileSection>
+            <ProfileInfo as={Link} to={`/profile/${user && user.ID}`}>
+              {user && <ProfileImg src={user.photo} alt="Profile" />}
+              <div>
+                <div>{user && user.name}</div>
+                <div>@{user && user.alias}</div>
+              </div>
 
-          </ProfileInfo>
-          <TertiaryButton>Logout</TertiaryButton>
-        </ProfileSection>
+            </ProfileInfo>
+            <TertiaryButton onClick={logout}>Logout</TertiaryButton>
+          </ProfileSection>
 
-        {/* New Status */}
-        <Form>
-          <Textarea placeholder="Craft your message" />
-          <Button>New Status</Button>
-        </Form>
+          {/* New Status */}
+          <Form onSubmit={createStatus}>
+            <Textarea
+              placeholder="Craft your message"
+              id="description"
+              name="description"
+              required
+              value={message}
+              onChange={updateMessage} />
+            <Button margin=".5rem 0" type="submit">New Status</Button>
+          </Form>
 
-        {/* Tabs */}
-        <Tabs>
-          <Tab onClick={() => setSelection(TAB_SELECTION.FEED)}>Feed</Tab>
-          <Tab onClick={() => setSelection(TAB_SELECTION.STORY)}>Story</Tab>
-          <Tab onClick={() => setSelection(TAB_SELECTION.FOLLOWING)}>Following</Tab>
-          <Tab onClick={() => setSelection(TAB_SELECTION.FOLLOWERS)}>Followers</Tab>
-        </Tabs>
-      </Header>
-      {content}
-    </Container>
+          {/* Tabs */}
+          <Tabs>
+            <Tab className={`${selection === TAB_SELECTION.FEED && "active"}`} onClick={() => setSelection(TAB_SELECTION.FEED)}>Feed</Tab>
+            <Tab className={`${selection === TAB_SELECTION.STORY && "active"}`} onClick={() => setSelection(TAB_SELECTION.STORY)}>Story</Tab>
+            <Tab className={`${selection === TAB_SELECTION.FOLLOWING && "active"}`} onClick={() => setSelection(TAB_SELECTION.FOLLOWING)}>Following</Tab>
+            <Tab className={`${selection === TAB_SELECTION.FOLLOWERS && "active"}`} onClick={() => setSelection(TAB_SELECTION.FOLLOWERS)}>Followers</Tab>
+          </Tabs>
+        </Header>
+        {content}
+      </Container>
+    </PleaseSignIn>
   );
 }
 
@@ -117,7 +154,7 @@ const Tab = styled.span`
   cursor: pointer;
 
   &:hover {
-    color: ${props => props.theme.primary["500"]};
+    color: ${props => props.theme.primary["300"]};
   }
 
   &.active {
