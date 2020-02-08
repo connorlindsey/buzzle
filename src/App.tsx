@@ -18,7 +18,7 @@ const App: React.FC = () => {
       <UserContext.Provider value={new UserService()}>
         <Router>
           <Route path="/" exact component={AuthView} />
-          <Route path="/profile/:id" component={ProfileView} />
+          <Route path="/profile/:alias" component={ProfileView} />
           <Route path="/home" component={HomeView} />
           <Route path="/upload-image" component={UploadImage} />
         </Router>

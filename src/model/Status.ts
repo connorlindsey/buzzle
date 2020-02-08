@@ -2,13 +2,13 @@ import Mention from "./Mention"
 import URL from "./URL"
 
 export default class Status {
-  userId: string
+  alias: string
   message: string
   mentions: Mention[] = []
   urls: URL[] = []
 
-  constructor(userId: string, message: string) {
-    this.userId = userId
+  constructor(alias: string, message: string) {
+    this.alias = alias
     this.message = message
     this.getMentions(message)
     this.getURLs(message)

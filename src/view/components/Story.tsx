@@ -4,11 +4,11 @@ import ServerFacade from '../../network/ServerFacade'
 import AStatus from './AStatus'
 
 interface StoryProps {
-  ID?: string | null | undefined
+  ID?: string | null
 }
 
 const StoryView: React.FC<StoryProps> = ({ ID }) => {
-  // Load the user feed
+  // Load the user story
   const [userStory, setUserStory] = useState<Story>()
   useEffect(() => {
     if (!ID) {
@@ -29,6 +29,7 @@ const StoryView: React.FC<StoryProps> = ({ ID }) => {
 
   return (
     <div>
+      {userStory.statuses.length === 0 && <h3>Nothing to see here. Go post a status!</h3>}
       {userStory.statuses.map((s, i) => <AStatus status={s} key={i} />)}
     </div>
   )

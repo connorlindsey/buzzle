@@ -55,4 +55,8 @@ export default class UserService {
     let user = ServerFacade.getUserByID(id)
     return user;
   }
+  static getUserByAlias = (alias: string): User | null => {
+    let user = ServerFacade.getUserByAlias(alias)
+    return user;
+  }
 }

@@ -68,6 +68,17 @@ const HomeView: React.FC = () => {
     history.push("/")
   }
 
+  // Search
+  const [search, setSearch] = useState<string>("")
+  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    history.push(`/profile/${search}`)
+  }
+
+  if (!user) {
+    return <h3>An error occurred</h3>
+  }
+
   return (
     <PleaseSignIn>
       <Container>
@@ -75,15 +86,17 @@ const HomeView: React.FC = () => {
         <Header>
           {/* Info */}
           <ProfileSection>
-            <ProfileInfo as={Link} to={`/profile/${user && user.ID}`}>
-              {user && <ProfileImg src={user.photo} alt="Profile" />}
+            <ProfileInfo as={Link} to={`/profile/${user.alias}`}>
+              <ProfileImg src={user.photo} alt="Profile" />
               <div>
-                <div>{user && user.name}</div>
-                <div>@{user && user.alias}</div>
+                <div>{user.name}</div>
+                <div>@{user.alias}</div>
               </div>
-
             </ProfileInfo>
-            <TertiaryButton onClick={logout}>Logout</TertiaryButton>
+              <form onSubmit={handleSearch}>
+                <Search type="text" placeholder="Search" value={search} onChange={e => setSearch(e.target.value)} />
+              </form>
+              <TertiaryButton onClick={logout}>Logout</TertiaryButton>
           </ProfileSection>
 
           {/* New Status */}
@@ -106,13 +119,34 @@ const HomeView: React.FC = () => {
             <Tab className={`${selection === TAB_SELECTION.FOLLOWERS && "active"}`} onClick={() => setSelection(TAB_SELECTION.FOLLOWERS)}>Followers</Tab>
           </Tabs>
         </Header>
-        {content}
+        <Padding>
+          {content}
+        </Padding>
       </Container>
     </PleaseSignIn>
   );
 }
 
 export default HomeView;
+
+const Search = styled.input`
+  width: 200px;
+  border: 1px solid ${props => props.theme.grey["700"]};
+  border-radius: ${props => props.theme.borderRadius};
+  height: 2rem;
+  background: ${props => props.theme.grey["600"]};
+  outline: none;
+  padding-left: 10px;
+  box-shadow: inset 0 -2px 0px hsla(0, 0%, 100%, 0.15), inset 0 1px 1px hsla(0, 0%, 0%, 0.15);
+
+  &::placeholder {
+    color: ${props => props.theme.grey["100"]};
+  }
+`
+
+const Padding = styled.div`
+  padding: 1rem 0;
+`
 
 const Container = styled.div`
   max-width: 600px;

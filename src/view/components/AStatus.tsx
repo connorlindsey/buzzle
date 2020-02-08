@@ -12,7 +12,7 @@ interface StatusProps {
 const AStatus: React.FC<StatusProps> = ({ status }) => {
   const [user, setUser] = useState<User>()
   useEffect(() => {
-    let user = UserService.getUserByID(status.userId)
+    let user = UserService.getUserByAlias(status.alias)
     if (user) {
       setUser(user)
     }
@@ -22,16 +22,16 @@ const AStatus: React.FC<StatusProps> = ({ status }) => {
 
   return (
     <StyledStatus>
-      <ProfileInfo as={Link} to={`/profile/${status.userId}`}>
+      <ProfileInfo>
         <ProfileImg src={user.photo} alt="Profile" />
         <Col>
-          <StyledName>{user.name}</StyledName>
-          <StyledAlias>{user.alias}</StyledAlias>
+          <StyledName as={Link} to={`/profile/${status.alias}`}>{user.name}</StyledName>
+          <StyledAlias as={Link} to={`/profile/${status.alias}`}>@{user.alias}</StyledAlias>
+          <DaMessage>
+            {status.message}
+          </DaMessage>
         </Col>
       </ProfileInfo>
-      <DaMessage>
-        {status.message}
-      </DaMessage>
     </StyledStatus>
   )
 }
@@ -39,11 +39,12 @@ const AStatus: React.FC<StatusProps> = ({ status }) => {
 export default AStatus
 
 const StyledStatus = styled.div`
-padding: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid ${props => props.theme.grey["700"]};
 `
 
 const ProfileInfo = styled.div`
-
+  display: flex;
 `
 
 const ProfileImg = styled.img`
@@ -59,13 +60,13 @@ const Col = styled.div`
 `
 
 const StyledName = styled.h4`
-
+  font-size: 16px;
 `
 
 const StyledAlias = styled.h5`
-
+  font-size: 14px;
+  color: ${props => props.theme.grey["400"]};
 `
 
 const DaMessage = styled.p`
-
 `

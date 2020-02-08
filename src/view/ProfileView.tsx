@@ -8,12 +8,12 @@ interface Props {
 
 
 const ProfileView: React.FC<Props> = ({ count }) => {
-  const { id } = useParams();
+  const { alias } = useParams();
   return (
     <PleaseSignIn>
       <div className="m-auto antialiased font-sans font-serif font-mono text-center">
         <p>{count}</p>
-        <p>ID: {id}</p>
+        <p>Alias: {alias}</p>
       </div>
     </PleaseSignIn>
   );

@@ -45,11 +45,12 @@ export default class ServerFacade {
   public static createStatus = (message: string): void => {
     let ID = localStorage.getItem("USER_ID")
     let user = ServerFacade.users.find(u => u.id === ID)
+    console.log("Create status: ", user)
     if (!user || !ID) {
       throw new Error("You must be logged in")
     }
     // Create status
-    let status = new Status(ID, message)
+    let status = new Status(user.alias, message)
 
     // Add status to user's story
     user.story.addStatus(status);
@@ -117,13 +118,21 @@ export default class ServerFacade {
   }
 
   public static getUserByAlias(alias: string) {
-    return this.users[0]
+    let user = this.users.find(u => u.alias === alias)
+    if (!user) {
+      // return null TODO: Change this back
+      localStorage.setItem("USER_ID", this.users[0].id)
+      return this.users[0]
+    }
+    return user
   }
 
   public static getUserByID(ID: string) {
     let user = this.users.find(u => u.id === ID)
     if (!user) {
-      return null
+      // return null TODO: Change this back
+      localStorage.setItem("USER_ID", this.users[0].id)
+      return this.users[0]
     }
     return user
   }
