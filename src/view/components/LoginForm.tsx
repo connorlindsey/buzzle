@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useHistory } from "react-router-dom";
 import { FORMS } from "../AuthView"
 import UserService from '../../services/UserService';
+import StatusService from '../../services/StatusService';
+import FollowerService from '../../services/FollowerService';
 
 interface Props {
   setCurrentForm: any
@@ -18,8 +20,8 @@ enum STATUS {
 const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
   const history = useHistory()
   const [values, setValues] = useState({
-    alias: "",
-    password: "",
+    alias: "clindsey",
+    password: "test",
   })
   const [status, setStatus] = useState<STATUS>(STATUS.READY)
   const [errorMessage, setErrorMessage] = useState<string>("")
@@ -37,6 +39,18 @@ const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
       setErrorMessage(result)
     } else {
       setStatus(STATUS.DONE)
+
+      // TODO: Remove this in production
+      // Have people follow logged in user
+      FollowerService.addFollowerManual("matt", values.alias)
+      FollowerService.addFollowerManual("cgood", values.alias)
+      FollowerService.addFollowerManual(values.alias, "cgood")
+
+      // Set up fake data
+      StatusService.createStatus("Wow, welcome to Buzzle 🔥")
+      StatusService.createStatus("Check out this cool thing 🚴‍♂️")
+      StatusService.createStatus("Another tweet 🐦. Hey there @tlane")
+
       history.push("/home")
     }
   }
@@ -63,7 +77,6 @@ const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
             type="text"
             placeholder="Your username"
             onChange={handleInputChange}
-            required
           />
         </div>
         <div className="mb-6">
@@ -75,7 +88,7 @@ const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
             type="password"
             placeholder="********"
             onChange={handleInputChange}
-            required
+
           />
         </div>
         <div className="flex items-center justify-between">
@@ -89,6 +102,8 @@ const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
           >Need an account? Sign up</span>
         </div>
       </form>
+      {/* TODO: Remove this */}
+      <h3 style={{ textAlign: "center" }}>Log in with "clindsey" and password "test"</h3>
     </div>
   );
 }

@@ -8,25 +8,25 @@ const userA: User = new User(
   "https://source.unsplash.com/1600x900/?person,mountain,nature"
 )
 const userB: User = new User(
-  "fakePassword",
+  "test",
   "Robert Jordan",
   "robby",
   "https://source.unsplash.com/1600x900/?person,mountain,nature"
 )
 const userC: User = new User(
-  "fakePassword",
+  "test",
   "Matt Pope",
   "matt",
   "https://source.unsplash.com/1600x900/?person,mountain,nature"
 )
 const userD: User = new User(
-  "fakePassword",
+  "test",
   "Trevor Lane",
   "tlane",
   "https://source.unsplash.com/1600x900/?person,mountain,nature"
 )
 const userE: User = new User(
-  "fakePassword",
+  "test",
   "Charles Goodwin",
   "cgood",
   "https://source.unsplash.com/1600x900/?person,mountain,nature"
@@ -37,7 +37,13 @@ export default class ServerFacade {
   /*==============
   Follow Methods
   ==============*/
+  public static addFollower = (followerAlias: string, followeeAlias: string): void => {
+    let follower = ServerFacade.getUserByAlias(followerAlias);
+    let followee = ServerFacade.getUserByAlias(followeeAlias);
 
+    follower?.addFollowing(followeeAlias);
+    followee?.addFollower(followerAlias);
+  }
 
   /*==============
   Status Methods
@@ -53,12 +59,16 @@ export default class ServerFacade {
     let status = new Status(user.alias, message)
 
     // Add status to user's story
-    user.story.addStatus(status);
+    user.story.addStatus(status)
 
     // Add status to follower's feeds
-    user.followers.forEach(f => f.story.addStatus(status))
+    user.followers.forEach(alias => {
+      let follower: User | null = ServerFacade.getUserByAlias(alias)
+      if (follower) {
+        follower.feed.addStatus(status)
+      }
+    })
   }
-
 
   /*==============
   Auth Methods
@@ -106,7 +116,7 @@ export default class ServerFacade {
     // const json = await res.json()
     // console.log("Update picture", json)
     let URL = "https://source.unsplash.com/1600x900/?person,mountain,nature" // TODO: Get URL back from lambda
-    user.photo = URL;
+    user.photo = URL
   }
 
   public static getUsers() {
@@ -117,22 +127,22 @@ export default class ServerFacade {
     return this.users[0]
   }
 
-  public static getUserByAlias(alias: string) {
+  public static getUserByAlias(alias: string): User | null {
     let user = this.users.find(u => u.alias === alias)
     if (!user) {
-      // return null TODO: Change this back
+      // return null // TODO: Fix this
       localStorage.setItem("USER_ID", this.users[0].id)
-      return this.users[0]
+      return this.users[0];
     }
     return user
   }
 
-  public static getUserByID(ID: string) {
+  public static getUserByID(ID: string): User | null {
     let user = this.users.find(u => u.id === ID)
     if (!user) {
-      // return null TODO: Change this back
+      // return null // TODO: Fix this
       localStorage.setItem("USER_ID", this.users[0].id)
-      return this.users[0]
+      return this.users[0];
     }
     return user
   }

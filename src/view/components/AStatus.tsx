@@ -20,6 +20,10 @@ const AStatus: React.FC<StatusProps> = ({ status }) => {
 
   if (!user) return <></>;
 
+  // let message = [];
+  // status.message.split(" ").forEach(word => {
+  // })
+
   return (
     <StyledStatus>
       <ProfileInfo>
@@ -28,7 +32,13 @@ const AStatus: React.FC<StatusProps> = ({ status }) => {
           <StyledName as={Link} to={`/profile/${status.alias}`}>{user.name}</StyledName>
           <StyledAlias as={Link} to={`/profile/${status.alias}`}>@{user.alias}</StyledAlias>
           <DaMessage>
-            {status.message}
+            {status.message.split(" ").map(word => {
+              if (word[0] === "@") {
+                return <Mention to={`/profile/${word.substr(1, word.length - 1)}`}>{word}</Mention>
+              } else {
+                return " " + word + " "
+              }
+            })}
           </DaMessage>
         </Col>
       </ProfileInfo>
@@ -38,8 +48,12 @@ const AStatus: React.FC<StatusProps> = ({ status }) => {
 
 export default AStatus
 
+const Mention = styled(Link)`
+  color: ${props => props.theme.primary["500"]};
+`
+
 const StyledStatus = styled.div`
-  padding: 1rem 0;
+  padding: .8rem 0;
   border-bottom: 1px solid ${props => props.theme.grey["700"]};
 `
 

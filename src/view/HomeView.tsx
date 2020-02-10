@@ -23,7 +23,7 @@ enum TAB_SELECTION {
 // TODO: Add search box
 const HomeView: React.FC = () => {
   const history = useHistory()
-  const [selection, setSelection] = useState<TAB_SELECTION>(TAB_SELECTION.FEED)
+  const [selection, setSelection] = useState<TAB_SELECTION>(TAB_SELECTION.STORY)
   const [user, setUser] = useState<User | null | undefined>()
   const [message, setMessage] = useState<string>("") // Status textarea
 
@@ -32,23 +32,6 @@ const HomeView: React.FC = () => {
     setUser(user);
   }, [])
 
-  let content;
-  switch (selection) {
-    case TAB_SELECTION.FEED:
-      content = <Feed />;
-      break;
-    case TAB_SELECTION.STORY:
-      content = <Story />
-      break;
-    case TAB_SELECTION.FOLLOWERS:
-      content = <FollowList users={[]} />
-      break;
-    case TAB_SELECTION.FOLLOWING:
-      content = <FollowList users={[]} />
-      break;
-    default:
-      content = <h2>An error has occurred</h2>
-  }
 
   const updateMessage = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(event.target.value);
@@ -79,6 +62,25 @@ const HomeView: React.FC = () => {
     return <h3>An error occurred</h3>
   }
 
+
+  let content;
+  switch (selection) {
+    case TAB_SELECTION.FEED:
+      content = <Feed />;
+      break;
+    case TAB_SELECTION.STORY:
+      content = <Story />
+      break;
+    case TAB_SELECTION.FOLLOWERS:
+      content = <FollowList users={user.getFollowers()} />
+      break;
+    case TAB_SELECTION.FOLLOWING:
+      content = <FollowList users={user.getFollowing()} />
+      break;
+    default:
+      content = <h2>An error has occurred</h2>
+  }
+
   return (
     <PleaseSignIn>
       <Container>
@@ -93,10 +95,10 @@ const HomeView: React.FC = () => {
                 <div>@{user.alias}</div>
               </div>
             </ProfileInfo>
-              <form onSubmit={handleSearch}>
-                <Search type="text" placeholder="Search" value={search} onChange={e => setSearch(e.target.value)} />
-              </form>
-              <TertiaryButton onClick={logout}>Logout</TertiaryButton>
+            <form onSubmit={handleSearch}>
+              <Search type="text" placeholder="Search" value={search} onChange={e => setSearch(e.target.value)} />
+            </form>
+            <TertiaryButton onClick={logout}>Logout</TertiaryButton>
           </ProfileSection>
 
           {/* New Status */}
@@ -157,6 +159,7 @@ const Container = styled.div`
 const ProfileSection = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin: 1rem 0;
 `
 

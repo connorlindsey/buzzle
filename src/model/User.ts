@@ -1,14 +1,15 @@
 import Story from "./Story"
 import Feed from "./Feed"
 import { v4 as uuid } from "uuid"
+import ServerFacade from "../network/ServerFacade"
 
 export default class User {
   id: string
   password: string // TODO: Hash this somewhere
   name: string
   alias: string
-  followers: User[]
-  following: User[]
+  followers: string[]
+  following: string[]
   story: Story
   feed: Feed
   photo: string
@@ -56,29 +57,47 @@ export default class User {
 
   // Followers
   getFollowers(): User[] {
-    return this.followers
+    let users: User[] = []
+    this.followers.forEach(a => {
+      let user = ServerFacade.getUserByAlias(a)
+      if (user) users.push(user)
+    })
+    return users
   }
-  getFollower(userId: string): User | undefined {
-    return this.followers.find(f => f.id === userId);
+  getFollower(alias: string): User | undefined | null {
+    if (this.followers.includes(alias)) {
+      return ServerFacade.getUserByAlias(alias);
+    }
+    return null;
   }
-  addFollower(user: User): void {
-    this.followers.push(user)
+  addFollower(alias: string): void {
+    this.followers.push(alias)
   }
-  removeFollower(user: User): void {
-    this.followers.filter(f => f.id !== user.id)
+  removeFollower(alias: string): void {
+    this.followers.filter(a => a !== alias)
   }
 
   // Followers
   getFollowing(): User[] {
-    return this.following
+    let users: User[] = []
+    this.following.forEach(a => {
+      let user = ServerFacade.getUserByAlias(a)
+      if (user) users.push(user)
+    })
+    return users
   }
-  getFollowee(userId: string): User | undefined {
-    return this.following.find(f => f.id === userId);
+  getFollowee(alias: string): User | undefined | null {
+    if (this.following.includes(alias)) {
+      return ServerFacade.getUserByAlias(alias);
+    }
+    return null;
   }
-  addFollowing(user: User): void {
-    this.following.push(user)
+  addFollowing(alias: string): void {
+    if (!alias) return;
+    this.following.push(alias)
   }
-  removeFollowing(user: User): void {
-    this.followers.filter(f => f.id !== user.id)
+  removeFollowing(alias: string): void {
+    if (!alias) return;
+    this.followers.filter(f => f !== alias)
   }
 }

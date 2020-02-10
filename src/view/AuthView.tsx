@@ -14,7 +14,7 @@ export enum FORMS {
 }
 
 const AuthView: React.FC = () => {
-  const [currentForm, setCurrentForm] = useState(FORMS.SIGNUP)
+  const [currentForm, setCurrentForm] = useState(FORMS.LOGIN)
 
   let form;
   if (currentForm === FORMS.SIGNUP) {
