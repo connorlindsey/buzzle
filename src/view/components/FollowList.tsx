@@ -13,7 +13,7 @@ const FollowList: React.FC<FollowListProps> = ({ users }) => {
   return (
     <div>
       {users.length === 0 && <div>No users found :(</div>}
-      {users.length > 0 && users.map(user => <FollowerCard follower={user} />)}
+      {users.length > 0 && users.map(user => <FollowerCard follower={user} key={user.id} />)}
     </div>
   )
 }

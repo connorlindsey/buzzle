@@ -74,7 +74,7 @@ export default class User {
     this.followers.push(alias)
   }
   removeFollower(alias: string): void {
-    this.followers.filter(a => a !== alias)
+    this.followers = this.followers.filter(a => a !== alias)
   }
 
   // Followers
@@ -98,6 +98,6 @@ export default class User {
   }
   removeFollowing(alias: string): void {
     if (!alias) return;
-    this.followers.filter(f => f !== alias)
+    this.following = this.following.filter(f => f !== alias)
   }
 }

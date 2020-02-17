@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Link } from 'react-router-dom';
 import User from '../../model/User';
 import UserService from '../../services/UserService';
+import Linkify from 'react-linkify';
 
 interface StatusProps {
   status: Status
@@ -20,10 +21,6 @@ const AStatus: React.FC<StatusProps> = ({ status }) => {
 
   if (!user) return <></>;
 
-  // let message = [];
-  // status.message.split(" ").forEach(word => {
-  // })
-
   return (
     <StyledStatus>
       <ProfileInfo>
@@ -32,13 +29,15 @@ const AStatus: React.FC<StatusProps> = ({ status }) => {
           <StyledName as={Link} to={`/profile/${status.alias}`}>{user.name}</StyledName>
           <StyledAlias as={Link} to={`/profile/${status.alias}`}>@{user.alias}</StyledAlias>
           <DaMessage>
-            {status.message.split(" ").map(word => {
-              if (word[0] === "@") {
-                return <Mention to={`/profile/${word.substr(1, word.length - 1)}`}>{word}</Mention>
-              } else {
-                return " " + word + " "
-              }
-            })}
+            <Linkify>
+              {status.message.split(" ").map((word, i) => {
+                if (word[0] === "@") {
+                  return <Mention to={`/profile/${word.substr(1, word.length - 1)}`} key={i}>{word}</Mention>
+                } else {
+                  return <React.Fragment key={i}>{" " + word + " "}</React.Fragment>
+                }
+              })}
+            </Linkify>
           </DaMessage>
         </Col>
       </ProfileInfo>
@@ -83,4 +82,7 @@ const StyledAlias = styled.h5`
 `
 
 const DaMessage = styled.p`
+  a {
+    color: ${props => props.theme.primary["500"]};
+  }
 `

@@ -2,6 +2,14 @@ import ServerFacade from "../network/ServerFacade"
 import User from "../model/User"
 
 export default class UserService {
+  static checkIsFollowing = (userID: string, alias: string): boolean => {
+    let user = ServerFacade.getUserByID(userID)
+    if (user && user.following.includes(alias)) {
+      return true;
+    }
+    return false;
+  }
+
   static signup = (name: string, alias: string, password: string): string => {
     try {
       var user = ServerFacade.signup(name, alias, password)

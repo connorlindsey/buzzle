@@ -45,6 +45,15 @@ export default class ServerFacade {
     followee?.addFollower(followerAlias);
   }
 
+  public static removeFollower = (followerAlias: string, followeeAlias: string): void => {
+    let follower = ServerFacade.getUserByAlias(followerAlias);
+    let followee = ServerFacade.getUserByAlias(followeeAlias);
+
+    console.log("Removing follower " + followerAlias + " from " + followeeAlias + "'s followers");
+    follower?.removeFollowing(followeeAlias);
+    followee?.removeFollower(followerAlias);
+  }
+
   /*==============
   Status Methods
   ==============*/

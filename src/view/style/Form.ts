@@ -27,7 +27,11 @@ export const Input = styled.input`
 	box-shadow: inset 0 -2px 0px hsla(0, 0%, 100%, 0.15), inset 0 1px 1px hsla(0, 0%, 0%, 0.15);
 `
 
-export const Textarea = styled.textarea`
+interface TextareaProps {
+	isMaxLength?: boolean
+}
+
+export const Textarea = styled.textarea<TextareaProps>`
 	width: 100%;
 	border-radius: ${props => props.theme.borderRadius};
   background: ${props => props.theme.grey["700"]};
@@ -36,4 +40,5 @@ export const Textarea = styled.textarea`
 	height: 4rem;
 	padding: 2px 10px;
 	outline: none;
+	border: ${props => props.isMaxLength && "1px solid red"}
 `

@@ -16,20 +16,13 @@ export enum FORMS {
 const AuthView: React.FC = () => {
   const [currentForm, setCurrentForm] = useState(FORMS.LOGIN)
 
-  let form;
-  if (currentForm === FORMS.SIGNUP) {
-    form = <SignUpForm setCurrentForm={setCurrentForm} />
-  } else {
-    form = <LoginForm setCurrentForm={setCurrentForm} />
-  }
-  
   return (
     <Container>
       {/* Sign up card */}
       <div className="mt-12">
-        {form}
+        {currentForm === FORMS.SIGNUP ? <SignUpForm setCurrentForm={setCurrentForm} /> : <LoginForm setCurrentForm={setCurrentForm} />}
       </div>
-    </Container> 
+    </Container>
   );
 }
 

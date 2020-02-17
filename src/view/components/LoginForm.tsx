@@ -50,6 +50,15 @@ const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
       StatusService.createStatus("Wow, welcome to Buzzle 🔥")
       StatusService.createStatus("Check out this cool thing 🚴‍♂️")
       StatusService.createStatus("Another tweet 🐦. Hey there @tlane")
+      StatusService.createStatus("I think this is sweet")
+      StatusService.createStatus("Here's a link to my startup 🚀")
+      StatusService.createStatus("Nice to see you @cgood")
+      StatusService.createStatus("Hey there!")
+      StatusService.createStatus("Awww yeah")
+      StatusService.createStatus("Lots of statuses")
+      StatusService.createStatus("Even more 🔥 takes")
+      StatusService.createStatus("Pls send me money 💰")
+      StatusService.createStatus("Happy birthday Buzzle 🍰🥳")
 
       history.push("/home")
     }
@@ -102,8 +111,6 @@ const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
           >Need an account? Sign up</span>
         </div>
       </form>
-      {/* TODO: Remove this */}
-      <h3 style={{ textAlign: "center" }}>Log in with "clindsey" and password "test"</h3>
     </div>
   );
 }

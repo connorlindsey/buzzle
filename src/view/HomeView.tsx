@@ -20,7 +20,6 @@ enum TAB_SELECTION {
   FOLLOWERS
 }
 
-// TODO: Add search box
 const HomeView: React.FC = () => {
   const history = useHistory()
   const [selection, setSelection] = useState<TAB_SELECTION>(TAB_SELECTION.STORY)
@@ -62,7 +61,10 @@ const HomeView: React.FC = () => {
     return <h3>An error occurred</h3>
   }
 
-
+  // TODO: Limit the length of the status
+  // TODO: Pagination
+  // TODO: Disable buttons when actions aren't permitted
+  // TODO: Communicate errors
   let content;
   switch (selection) {
     case TAB_SELECTION.FEED:
@@ -107,9 +109,11 @@ const HomeView: React.FC = () => {
               placeholder="Craft your message"
               id="description"
               name="description"
+              maxLength={120}
               required
               value={message}
-              onChange={updateMessage} />
+              onChange={updateMessage}
+              isMaxLength={message.length >= 115} />
             <Button margin=".5rem 0" type="submit">New Status</Button>
           </Form>
 

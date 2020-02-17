@@ -10,6 +10,7 @@ import styled from "styled-components";
 import Story from './components/Story';
 import FollowList from './components/FollowList';
 import FollowerService from '../services/FollowerService';
+import UserService from '../services/UserService';
 
 enum TAB_SELECTION {
   STORY,
@@ -31,6 +32,8 @@ const ProfileView: React.FC = () => {
       let ID = localStorage.getItem("USER_ID")
       if (user && user.id === ID) {
         setCanFollow(false)
+      } else if (ID) {
+        setIsFollowing(UserService.checkIsFollowing(ID, alias))
       }
     }
   }, [user, setUser, alias])
@@ -45,7 +48,11 @@ const ProfileView: React.FC = () => {
   }
 
   const handleFollow = () => {
-    FollowerService.addFollower(alias);
+    if (isFollowing) {
+      FollowerService.removeFollower(alias);
+    } else {
+      FollowerService.addFollower(alias);
+    }
     setIsFollowing(!isFollowing)
   }
 
