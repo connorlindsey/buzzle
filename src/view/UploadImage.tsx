@@ -9,6 +9,7 @@ enum STATUS {
   DONE
 }
 
+// Page for a user to upload a profile image during the sign up process
 const UploadImage: React.FC = () => {
   const history = useHistory()
   const [file, setFile] = useState<File>()

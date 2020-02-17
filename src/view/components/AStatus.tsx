@@ -29,6 +29,7 @@ const AStatus: React.FC<StatusProps> = ({ status }) => {
           <StyledName as={Link} to={`/profile/${status.alias}`}>{user.name}</StyledName>
           <StyledAlias as={Link} to={`/profile/${status.alias}`}>@{user.alias}</StyledAlias>
           <DaMessage>
+            {/* Parse Links and Mentions here */}
             <Linkify>
               {status.message.split(" ").map((word, i) => {
                 if (word[0] === "@") {

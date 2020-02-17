@@ -18,6 +18,7 @@ enum TAB_SELECTION {
   FOLLOWERS
 }
 
+// Page to display the profile of any users based on an alias passed as a query parameter
 const ProfileView: React.FC = () => {
   const history = useHistory()
   const { alias } = useParams();
@@ -26,6 +27,7 @@ const ProfileView: React.FC = () => {
   const [isFollowing, setIsFollowing] = useState<boolean>(false)
   const [canFollow, setCanFollow] = useState<boolean>(true)
 
+  // Calculate the following relationship
   useEffect(() => {
     if (alias) {
       setUser(ServerFacade.getUserByAlias(alias))
@@ -56,6 +58,7 @@ const ProfileView: React.FC = () => {
     setIsFollowing(!isFollowing)
   }
 
+  // Handle tabs
   let content;
   switch (selection) {
     case TAB_SELECTION.STORY:
@@ -113,8 +116,7 @@ interface ButtonProps {
   following: boolean
 }
 
-
-const FollowButton = styled(Button) <ButtonProps>`
+const FollowButton = styled(Button)<ButtonProps>`
   background: ${props => props.following ? props.theme.primary["500"] : "transparent"};
   color: ${props => props.following ? "#FFF" : props.theme.primary["500"]};
 `

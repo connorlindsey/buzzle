@@ -55,7 +55,7 @@ const StoryView: React.FC<StoryProps> = ({ ID }) => {
   return (
     <div>
       {userStory.statuses.map((s, i) => <AStatus status={s} key={i} />)}
-      <Button margin="1rem auto" onClick={loadStatuses}>See more</Button>
+      <Button margin="1rem auto" onClick={loadStatuses}>{STATUS.LOADING ? "Loading..." : "See more"}</Button>
     </div>
   )
 }

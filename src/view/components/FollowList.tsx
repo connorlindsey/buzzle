@@ -6,6 +6,7 @@ interface FollowListProps {
   users: User[] | null | undefined
 }
 
+// Display a list of users whether they are followers or following
 const FollowList: React.FC<FollowListProps> = ({ users }) => {
   if (!users) {
     return (<div>No users found</div>)

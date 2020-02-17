@@ -1,13 +1,16 @@
 import ServerFacade from "../network/ServerFacade"
 import User from "../model/User"
 
+// Handle common tasks related to users by communicating between
+// the View and Server
 export default class UserService {
+  // Returns a boolean indicating whether the current user is following the user with the given alias
   static checkIsFollowing = (userID: string, alias: string): boolean => {
     let user = ServerFacade.getUserByID(userID)
     if (user && user.following.includes(alias)) {
-      return true;
+      return true
     }
-    return false;
+    return false
   }
 
   static signup = (name: string, alias: string, password: string): string => {
@@ -40,7 +43,7 @@ export default class UserService {
   }
 
   static updatePicture = (file: File): string => {
-    let user = UserService.getCurrentUser();
+    let user = UserService.getCurrentUser()
     if (!user) {
       return "You must be logged in to complete this operation"
     }
@@ -61,10 +64,10 @@ export default class UserService {
 
   static getUserByID = (id: string): User | null => {
     let user = ServerFacade.getUserByID(id)
-    return user;
+    return user
   }
   static getUserByAlias = (alias: string): User | null => {
     let user = ServerFacade.getUserByAlias(alias)
-    return user;
+    return user
   }
 }

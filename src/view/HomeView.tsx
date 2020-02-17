@@ -61,10 +61,7 @@ const HomeView: React.FC = () => {
     return <h3>An error occurred</h3>
   }
 
-  // TODO: Limit the length of the status
   // TODO: Pagination
-  // TODO: Disable buttons when actions aren't permitted
-  // TODO: Communicate errors
   let content;
   switch (selection) {
     case TAB_SELECTION.FEED:

@@ -7,6 +7,7 @@ interface FeedProps {
   ID?: string | null
 }
 
+// Component which renders a list of statuses
 const FeedView: React.FC<FeedProps> = ({ ID }) => {
   // Load the user feed
   const [userFeed, setUserFeed] = useState<Feed>()

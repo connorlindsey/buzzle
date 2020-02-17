@@ -5,7 +5,7 @@ import ServerFacade from "../network/ServerFacade"
 
 export default class User {
   id: string
-  password: string // TODO: Hash this somewhere
+  password: string // Hashed on backend and verified using JWT
   name: string
   alias: string
   followers: string[]
@@ -71,6 +71,7 @@ export default class User {
     return null;
   }
   addFollower(alias: string): void {
+    if (!alias || this.followers.includes(alias)) return;
     this.followers.push(alias)
   }
   removeFollower(alias: string): void {
@@ -93,7 +94,7 @@ export default class User {
     return null;
   }
   addFollowing(alias: string): void {
-    if (!alias) return;
+    if (!alias || this.following.includes(alias)) return;
     this.following.push(alias)
   }
   removeFollowing(alias: string): void {

@@ -1,6 +1,7 @@
 import User from "../model/User"
 import Status from "../model/Status"
 
+// Dummy data
 const userA: User = new User(
   "test",
   "Connor Lindsey",
@@ -41,7 +42,9 @@ export default class ServerFacade {
     let follower = ServerFacade.getUserByAlias(followerAlias);
     let followee = ServerFacade.getUserByAlias(followeeAlias);
 
+    // Follower is not following followee
     follower?.addFollowing(followeeAlias);
+    // Followee now has "follower" as a follower
     followee?.addFollower(followerAlias);
   }
 
@@ -49,8 +52,9 @@ export default class ServerFacade {
     let follower = ServerFacade.getUserByAlias(followerAlias);
     let followee = ServerFacade.getUserByAlias(followeeAlias);
 
-    console.log("Removing follower " + followerAlias + " from " + followeeAlias + "'s followers");
+    // Follower is no longer following followee
     follower?.removeFollowing(followeeAlias);
+    // Followee no longer lists "follower" as a follower
     followee?.removeFollower(followerAlias);
   }
 
@@ -60,7 +64,6 @@ export default class ServerFacade {
   public static createStatus = (message: string): void => {
     let ID = localStorage.getItem("USER_ID")
     let user = ServerFacade.users.find(u => u.id === ID)
-    console.log("Create status: ", user)
     if (!user || !ID) {
       throw new Error("You must be logged in")
     }
@@ -115,6 +118,7 @@ export default class ServerFacade {
       throw new Error("User not found")
     }
 
+    // TODO: Implement this with Lambda / S3
     // Send image to lambda to upload to S3
     // const formData = new FormData()
     // formData.append("profilePicture", file, file.name)
@@ -124,7 +128,7 @@ export default class ServerFacade {
     // })
     // const json = await res.json()
     // console.log("Update picture", json)
-    let URL = "https://source.unsplash.com/1600x900/?person,mountain,nature" // TODO: Get URL back from lambda
+    let URL = "https://source.unsplash.com/1600x900/?person,mountain,nature"
     user.photo = URL
   }
 
@@ -139,9 +143,7 @@ export default class ServerFacade {
   public static getUserByAlias(alias: string): User | null {
     let user = this.users.find(u => u.alias === alias)
     if (!user) {
-      // return null // TODO: Fix this
-      localStorage.setItem("USER_ID", this.users[0].id)
-      return this.users[0];
+      return null 
     }
     return user
   }
@@ -149,9 +151,7 @@ export default class ServerFacade {
   public static getUserByID(ID: string): User | null {
     let user = this.users.find(u => u.id === ID)
     if (!user) {
-      // return null // TODO: Fix this
-      localStorage.setItem("USER_ID", this.users[0].id)
-      return this.users[0];
+      return null 
     }
     return user
   }

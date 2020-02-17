@@ -1,5 +1,7 @@
 import ServerFacade from "../network/ServerFacade"
 
+// Handle common tasks related to statuses by communicating between
+// the View and Server
 export default class StatusService {
   static createStatus = (message: string): string => {
     try {
@@ -15,6 +17,7 @@ export default class StatusService {
     return ""
   }
 
+  // TODO: Handle pagination
   static loadStatuses = (): string => {
     try {
       // ServerFacade.loadStatuses()
