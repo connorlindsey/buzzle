@@ -87,10 +87,10 @@ const HomeView: React.FC = () => {
       content = <Story />
       break;
     case TAB_SELECTION.FOLLOWERS:
-      content = <FollowList user={user} followers={true} />
+      content = <FollowList followers={true} />
       break;
     case TAB_SELECTION.FOLLOWING:
-      content = <FollowList user={user} followers={false} />
+      content = <FollowList followers={false} />
       break;
     default:
       content = <h2>An error has occurred</h2>

@@ -12,4 +12,8 @@ export default class Feed {
   addStatus(status: Status) {
     this.statuses.unshift(status);
   }
+
+  loadStatuses(statuses: Status[]) {
+    this.statuses = [...this.statuses, ...statuses]
+  }
 }

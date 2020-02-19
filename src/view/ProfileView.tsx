@@ -69,10 +69,10 @@ const ProfileView: React.FC = () => {
       content = <Story ID={user.id} />
       break;
     case TAB_SELECTION.FOLLOWERS:
-      content = <FollowList user={user}  followers={true} />
+      content = <FollowList ID={user.id} followers={true} />
       break;
     case TAB_SELECTION.FOLLOWING:
-      content = <FollowList user={user}  followers={false} />
+      content = <FollowList ID={user.id} followers={false} />
       break;
     default:
       content = <h2>An error has occurred</h2>

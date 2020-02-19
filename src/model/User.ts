@@ -71,8 +71,7 @@ export default class User {
     throw new Error("Follower not found")
   }
   addFollower(alias: string): void {
-    if (!alias || this.followers.includes(alias)) return;
-    console.log("Adding ", alias);
+    if (!alias || this.followers.includes(alias) || alias === this.alias) return;
     this.followers = [...this.followers, alias]
   }
   removeFollower(alias: string): void {
@@ -95,8 +94,7 @@ export default class User {
     throw new Error("Followee not found")
   }
   addFollowing(alias: string): void {
-    if (!alias || this.following.includes(alias)) return;
-    console.log("Adding ", alias);
+    if (!alias || this.following.includes(alias) || alias === this.alias) return;
     this.following = [...this.following, alias]
   }
   removeFollowing(alias: string): void {

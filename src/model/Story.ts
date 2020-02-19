@@ -10,4 +10,8 @@ export default class Story {
   addStatus(status: Status) {
     this.statuses.unshift(status)
   }
+
+  loadStatuses(statuses: Status[]) {
+    this.statuses = [...this.statuses, ...statuses]
+  }
 }

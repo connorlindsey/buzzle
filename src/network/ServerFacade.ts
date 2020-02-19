@@ -1,6 +1,5 @@
 import User from "../model/User"
 import Status from "../model/Status"
-import StatusService from "../services/StatusService"
 
 // Dummy data
 const userA: User = new User(
@@ -59,16 +58,22 @@ export default class ServerFacade {
     followee?.removeFollower(followerAlias);
   }
 
-  public static loadMoreFollowers = async (): Promise<string> => {
-    // TODO: Actually call the server for more followers
-    // If more are available, add them to the user's followers
-    return "No more followers to load"
+  public static loadMoreFollowers = async (pag: number, ID: string): Promise<User[]> => {
+    // TODO: Actually call the server for more statuses
+    if (false) {
+      throw new Error("No more followers to load")
+    }
+    let user = await ServerFacade.getUserByID(ID);
+    return await user.getFollowers()
   }
 
-  public static loadMoreFollowing = async (): Promise<string> => {
-    // TODO: Actually call the server for more following
-    // If more are available, add them to the user's following
-    return "You aren't following any more users"
+  public static loadMoreFollowing = async (pag: number, ID: string): Promise<User[]> => {
+    // TODO: Actually call the server for more statuses
+    if (false) {
+      throw new Error("No more following to load")
+    }
+    let user = await ServerFacade.getUserByID(ID);
+    return await user.getFollowing()
   }
 
   /*==============
@@ -93,26 +98,33 @@ export default class ServerFacade {
     })
   }
 
-  public static loadMoreStory = async (): Promise<void> => {
+  public static loadMoreStory = async (pag: number, ID: string): Promise<Status[]> => {
     // TODO: Actually call the server for more statuses
-    // if (true) {
-    //   throw new Error("No more statuses to load")
-    // }
-    // If more are available, add them to the user's story
-    StatusService.createStatus("I think this is sweet")
-    StatusService.createStatus("Here's a link to my startup 🚀")
-    StatusService.createStatus("Nice to see you @cgood")
-    StatusService.createStatus("Hey there!")
-    StatusService.createStatus("Awww yeah")
-    StatusService.createStatus("Lots of statuses")
-    StatusService.createStatus("Even more 🔥 takes")
-    StatusService.createStatus("Happy birthday Buzzle 🍰🥳")
+    if (false) {
+      throw new Error("No more statuses to load")
+    }
+    let user = await ServerFacade.getUserByID(ID);
+    user.story.loadStatuses([
+      new Status(user.alias, "I think this is sweet"),
+      new Status(user.alias, "Here's a link to my startup 🚀"),
+      new Status(user.alias, "Happy birthday Buzzle 🍰🥳")
+    ])
+    return user.story.statuses
   }
 
-  public static loadMoreFeed = async (): Promise<string> => {
+  public static loadMoreFeed = async (pag: number, ID: string): Promise<Status[]> => {
     // TODO: Actually call the server for more statuses
     // If more are available, add them to the user's feed
-    return "No more statuses"
+    if (false) {
+      throw new Error("No more statuses to load")
+    }
+    let user = await ServerFacade.getUserByID(ID);
+    // user.feed.loadStatuses([
+    //   new Status(user.alias, "I think this is sweet"),
+    //   new Status(user.alias, "Here's a link to my startup 🚀"),
+    //   new Status(user.alias, "Happy birthday Buzzle 🍰🥳")
+    // ])
+    return user.feed.statuses
   }
 
   /*==============

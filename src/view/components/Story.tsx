@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import Story from '../../model/Story'
-import ServerFacade from '../../network/ServerFacade'
+import Status from '../../model/Status'
 import AStatus from './AStatus'
 import Button from "../style/Button"
 import StatusService from '../../services/StatusService'
@@ -17,67 +16,49 @@ enum STATUS {
 
 const StoryView: React.FC<StoryProps> = ({ ID }) => {
   // Load the user story
-  const [userStory, setUserStory] = useState<Story>()
+  const [statuses, setStatuses] = useState<Status[]>([])
   const [status, setStatus] = useState<STATUS>(STATUS.DEFAULT)
   const [message, setMessage] = useState<string>()
-  const [val, setVal] = useState(0)
+  const [pag, setPag] = useState(0)
 
   const updateStory = useCallback(
     async () => {
+      setStatus(STATUS.LOADING)
       if (!ID) {
         // eslint-disable-next-line
-        ID = localStorage.getItem("USER_ID");
+        ID = localStorage.getItem("USER_ID") || "";
       }
-      if (ID) {
-        try {
-          let user = await ServerFacade.getUserByID(ID)
-          setUserStory(user.story)
-        } catch (e) {
-          setUserStory(new Story())
+      try {
+        console.log("I'm trying to get more statuses")
+        setStatuses(await StatusService.loadMoreStory(pag, ID))
+        setStatus(STATUS.DEFAULT)
+      } catch (e) {
+        if (e instanceof Error) {
+          setMessage(e.message);
+          setStatus(STATUS.DEFAULT)
+          setTimeout(() => {
+            setMessage("")
+          }, 1500)
         }
       }
-      // Track number of paginations
-      setVal(val + 1)
     },
     [],
   )
 
   useEffect(() => {
     updateStory()
-  }, [updateStory])
+  }, [updateStory, pag])
 
-  const loadStatuses = (): void => {
-    setStatus(STATUS.LOADING)
-    const result = StatusService.loadMoreStory()
-    if (result) {
-      setMessage(result)
-      // An error has ocurred
-      setStatus(STATUS.ERROR)
-      setTimeout(() => {
-        setMessage("")
-        setStatus(STATUS.DEFAULT)
-      }, 2000)
-      return
-    }
-
-    updateStory();
-    setStatus(STATUS.DEFAULT)
-  }
-
-  // Check if the story exists
-  if (!userStory) {
-    return (<div><h3>An error has occurred</h3></div>)
-  }
 
   // Check if the story has statuses
-  if (userStory.statuses.length <= 0) {
+  if (statuses.length <= 0) {
     return <h3>Nothing to see here. Go post a status!</h3>
   }
 
   return (
     <div>
-      {userStory.statuses.map((s, i) => <AStatus status={s} key={i} />)}
-      <Button margin="1rem auto" onClick={loadStatuses}>{status === STATUS.LOADING ? "Loading..." : "See more"}</Button>
+      {statuses.map((s, i) => <AStatus status={s} key={i} />)}
+      <Button margin="1rem auto" onClick={() => setPag(pag + 1)}>{status === STATUS.LOADING ? "Loading..." : "See more"}</Button>
       {message && <h3>{message}</h3>}
     </div>
   )
