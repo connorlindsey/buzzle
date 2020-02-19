@@ -17,10 +17,9 @@ export default class StatusService {
     return ""
   }
 
-  // TODO: Handle pagination
-  static loadStatuses = (): string => {
+  static loadMoreStory = (): string => {
     try {
-      // ServerFacade.loadStatuses()
+      ServerFacade.loadMoreStory()
     } catch (e) {
       if (e instanceof Error) {
         return e.message

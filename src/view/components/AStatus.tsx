@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Status from '../../model/Status'
 import styled from "styled-components";
 import { Link } from 'react-router-dom';
@@ -12,12 +12,19 @@ interface StatusProps {
 
 const AStatus: React.FC<StatusProps> = ({ status }) => {
   const [user, setUser] = useState<User>()
+  const getUser = useCallback(
+    async () => {
+      let user = await UserService.getUserByAlias(status.alias)
+      if (user) {
+        setUser(user)
+      }
+    },
+    [status.alias],
+  )
+
   useEffect(() => {
-    let user = UserService.getUserByAlias(status.alias)
-    if (user) {
-      setUser(user)
-    }
-  }, [user, status])
+    getUser()
+  }, [user, status, getUser])
 
   if (!user) return <></>;
 

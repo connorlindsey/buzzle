@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useHistory } from "react-router-dom";
 import PleaseSignIn from './components/PleaseSignIn';
 import ServerFacade from '../network/ServerFacade';
@@ -27,20 +27,24 @@ const ProfileView: React.FC = () => {
   const [isFollowing, setIsFollowing] = useState<boolean>(false)
   const [canFollow, setCanFollow] = useState<boolean>(true)
 
+  const updateUser = useCallback(
+    async () => {
+      if (alias) {
+        setUser(await ServerFacade.getUserByAlias(alias))
+        let ID = localStorage.getItem("USER_ID")
+        if (user && user.id === ID) {
+          setCanFollow(false)
+        } else if (ID) {
+          setIsFollowing(await UserService.checkIsFollowing(ID, alias))
+        }
+      }
+    }, [user, alias]
+  )
+
   // Calculate the following relationship
   useEffect(() => {
-    if (alias) {
-      setUser(ServerFacade.getUserByAlias(alias))
-      let ID = localStorage.getItem("USER_ID")
-      if (user && user.id === ID) {
-        setCanFollow(false)
-      } else if (ID) {
-        setIsFollowing(UserService.checkIsFollowing(ID, alias))
-      }
-    }
-  }, [user, setUser, alias])
-
-
+    updateUser()
+  }, [updateUser])
 
   if (!user || !alias) {
     return (
@@ -49,11 +53,11 @@ const ProfileView: React.FC = () => {
       </Container>)
   }
 
-  const handleFollow = () => {
+  const handleFollow = async () => {
     if (isFollowing) {
-      FollowerService.removeFollower(alias);
+      await FollowerService.removeFollower(alias);
     } else {
-      FollowerService.addFollower(alias);
+      await FollowerService.addFollower(alias);
     }
     setIsFollowing(!isFollowing)
   }
@@ -65,10 +69,10 @@ const ProfileView: React.FC = () => {
       content = <Story ID={user.id} />
       break;
     case TAB_SELECTION.FOLLOWERS:
-      content = <FollowList users={user.getFollowers()} />
+      content = <FollowList user={user}  followers={true} />
       break;
     case TAB_SELECTION.FOLLOWING:
-      content = <FollowList users={user.getFollowing()} />
+      content = <FollowList user={user}  followers={false} />
       break;
     default:
       content = <h2>An error has occurred</h2>
@@ -116,7 +120,7 @@ interface ButtonProps {
   following: boolean
 }
 
-const FollowButton = styled(Button)<ButtonProps>`
+const FollowButton = styled(Button) <ButtonProps>`
   background: ${props => props.following ? props.theme.primary["500"] : "transparent"};
   color: ${props => props.following ? "#FFF" : props.theme.primary["500"]};
 `

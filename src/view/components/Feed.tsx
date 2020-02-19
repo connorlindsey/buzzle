@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Feed from "../../model/Feed"
-import ServerFacade from '../../network/ServerFacade'
 import AStatus from './AStatus'
+import UserService from '../../services/UserService'
 
 interface FeedProps {
   ID?: string | null
@@ -11,17 +11,17 @@ interface FeedProps {
 const FeedView: React.FC<FeedProps> = ({ ID }) => {
   // Load the user feed
   const [userFeed, setUserFeed] = useState<Feed>()
+  const getUserFeed = async () => {
+    try {
+
+      const user = await UserService.getCurrentUser();
+      setUserFeed(user.feed)
+    } catch (e) {
+      setUserFeed(new Feed())
+    }
+  }
   useEffect(() => {
-    if (!ID) {
-      // eslint-disable-next-line
-      ID = localStorage.getItem("USER_ID");
-    }
-    if (ID) {
-      let user = ServerFacade.getUserByID(ID)
-      if (user) {
-        setUserFeed(user.feed)
-      }
-    }
+    getUserFeed()
   }, [ID, userFeed])
 
   if (!userFeed) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useHistory } from 'react-router-dom'
 import styled from "styled-components"
 
@@ -20,16 +20,26 @@ enum TAB_SELECTION {
   FOLLOWERS
 }
 
+// TODO: Follow doesn't update view
 const HomeView: React.FC = () => {
   const history = useHistory()
   const [selection, setSelection] = useState<TAB_SELECTION>(TAB_SELECTION.STORY)
-  const [user, setUser] = useState<User | null | undefined>()
+  const [user, setUser] = useState<User | null>()
   const [message, setMessage] = useState<string>("") // Status textarea
 
+  const getUser = useCallback(
+    async (): Promise<void> => {
+      try {
+        const tmp = await UserService.getCurrentUser();
+        setUser(tmp);
+      } catch (e) {
+        setUser(null);
+      }
+    }, [])
+
   useEffect(() => {
-    const user = UserService.getCurrentUser();
-    setUser(user);
-  }, [])
+    getUser()
+  }, [getUser, user])
 
 
   const updateMessage = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -57,8 +67,14 @@ const HomeView: React.FC = () => {
     history.push(`/profile/${search}`)
   }
 
+  // Redirect to login screen if user is not found
   if (!user) {
-    return <h3>An error occurred</h3>
+    return (
+      <Container>
+        <h1>An error ocurred</h1>
+        <Button as={Link} to="/">Please sign in</Button>
+      </Container>
+    )
   }
 
   // TODO: Pagination
@@ -71,10 +87,10 @@ const HomeView: React.FC = () => {
       content = <Story />
       break;
     case TAB_SELECTION.FOLLOWERS:
-      content = <FollowList users={user.getFollowers()} />
+      content = <FollowList user={user} followers={true} />
       break;
     case TAB_SELECTION.FOLLOWING:
-      content = <FollowList users={user.getFollowing()} />
+      content = <FollowList user={user} followers={false} />
       break;
     default:
       content = <h2>An error has occurred</h2>

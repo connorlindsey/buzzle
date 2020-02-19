@@ -5,16 +5,16 @@ import StatusService from "../services/StatusService"
 
 describe("User Service", () => {
   // Sign up a user
-  it("Sign up success", () => {
-    let message = UserService.signup("New name", "myAlias", "pass")
+  it("Sign up success", async () => {
+    let message = await UserService.signup("New name", "myAlias", "pass")
     expect(message).toBe("")
 
     let ID = localStorage.getItem("USER_ID")
     expect(ID).not.toBeNull()
   })
 
-  it("Sign up failure", () => {
-    let message = UserService.signup("New name", "myAlias", "pass")
+  it("Sign up failure", async () => {
+    let message = await UserService.signup("New name", "myAlias", "pass")
     expect(message).toBe("Alias already taken")
   })
 
@@ -26,16 +26,16 @@ describe("User Service", () => {
   })
 
   // Sign in
-  it("Sign in success", () => {
-    let message = UserService.login("myAlias", "pass")
+  it("Sign in success", async () => {
+    let message = await UserService.login("myAlias", "pass")
     expect(message).toBe("")
 
     let ID = localStorage.getItem("USER_ID")
     expect(ID).not.toBeNull()
   })
 
-  it("Sign in failure - password", () => {
-    let message = UserService.login("myAlias", "notMyPassword")
+  it("Sign in failure - password", async () => {
+    let message = await UserService.login("myAlias", "notMyPassword")
     expect(message).toBe("Incorrect password")
   })
 
@@ -48,46 +48,46 @@ describe("User Service", () => {
 
 describe("Follower Service", () => {
   // Follow a few users
-  it("Follow success", () => {
-    FollowerService.addFollower(ServerFacade.users[0].alias)
-    FollowerService.addFollower(ServerFacade.users[1].alias)
-    FollowerService.addFollower(ServerFacade.users[2].alias)
+  it("Follow success", async () => {
+    await FollowerService.addFollower(ServerFacade.users[0].alias)
+    await FollowerService.addFollower(ServerFacade.users[1].alias)
+    await FollowerService.addFollower(ServerFacade.users[2].alias)
 
-    let user = UserService.getCurrentUser();
+    let user = await UserService.getCurrentUser();
     expect(user?.following.length).toBe(3)
     expect(user?.following).toContain(ServerFacade.users[0].alias)
     expect(user?.following).toContain(ServerFacade.users[1].alias)
     expect(user?.following).toContain(ServerFacade.users[2].alias)
   })
 
-  it("Be followed success", () => {
-    let user = UserService.getCurrentUser();
+  it("Be followed success", async () => {
+    let user = await UserService.getCurrentUser();
     let alias = user?.alias || ""
-    FollowerService.addFollowerManual(ServerFacade.users[0].alias, alias)
-    FollowerService.addFollowerManual(ServerFacade.users[1].alias, alias)
+    await FollowerService.addFollowerManual(ServerFacade.users[0].alias, alias)
+    await FollowerService.addFollowerManual(ServerFacade.users[1].alias, alias)
 
     expect(user?.followers.length).toBe(2)
   })
 
   // Unfollow a user
-  it("Unfollow Success", () => {
-    FollowerService.removeFollower(ServerFacade.users[0].alias)
+  it("Unfollow Success", async () => {
+    await FollowerService.removeFollower(ServerFacade.users[0].alias)
 
-    let user = UserService.getCurrentUser();
+    let user = await UserService.getCurrentUser();
     expect(user?.following.length).toBe(2)
     expect(user?.following).not.toContain(ServerFacade.users[0].alias)
   })
 
   // Check isFollowing
-  it("Check is following", () => {
+  it("Check is following", async () => {
     let ID = localStorage.getItem("USER_ID") || ""
-    let res = UserService.checkIsFollowing(ID, ServerFacade.users[0].alias)
+    let res = await UserService.checkIsFollowing(ID, ServerFacade.users[0].alias)
     expect(res).toBe(false)
 
-    res = UserService.checkIsFollowing(ID, ServerFacade.users[1].alias)
+    res = await UserService.checkIsFollowing(ID, ServerFacade.users[1].alias)
     expect(res).toBe(true)
 
-    res = UserService.checkIsFollowing(ID, ServerFacade.users[2].alias)
+    res = await UserService.checkIsFollowing(ID, ServerFacade.users[2].alias)
     expect(res).toBe(true)
   })
 })
@@ -104,8 +104,8 @@ describe("Status Service", () => {
     expect(result).toBe("")
   })
 
-  it("Status is in story", () => {
-    let user = UserService.getCurrentUser()
+  it("Status is in story", async () => {
+    let user = await UserService.getCurrentUser()
     expect(user?.story.statuses.length).toBe(2)
   })
 

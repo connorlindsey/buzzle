@@ -1,5 +1,6 @@
 import User from "../model/User"
 import Status from "../model/Status"
+import StatusService from "../services/StatusService"
 
 // Dummy data
 const userA: User = new User(
@@ -38,9 +39,9 @@ export default class ServerFacade {
   /*==============
   Follow Methods
   ==============*/
-  public static addFollower = (followerAlias: string, followeeAlias: string): void => {
-    let follower = ServerFacade.getUserByAlias(followerAlias);
-    let followee = ServerFacade.getUserByAlias(followeeAlias);
+  public static addFollower = async (followerAlias: string, followeeAlias: string): Promise<void> => {
+    let follower = await ServerFacade.getUserByAlias(followerAlias);
+    let followee = await ServerFacade.getUserByAlias(followeeAlias);
 
     // Follower is not following followee
     follower?.addFollowing(followeeAlias);
@@ -48,9 +49,9 @@ export default class ServerFacade {
     followee?.addFollower(followerAlias);
   }
 
-  public static removeFollower = (followerAlias: string, followeeAlias: string): void => {
-    let follower = ServerFacade.getUserByAlias(followerAlias);
-    let followee = ServerFacade.getUserByAlias(followeeAlias);
+  public static removeFollower = async (followerAlias: string, followeeAlias: string): Promise<void> => {
+    let follower = await ServerFacade.getUserByAlias(followerAlias);
+    let followee = await ServerFacade.getUserByAlias(followeeAlias);
 
     // Follower is no longer following followee
     follower?.removeFollowing(followeeAlias);
@@ -58,10 +59,22 @@ export default class ServerFacade {
     followee?.removeFollower(followerAlias);
   }
 
+  public static loadMoreFollowers = async (): Promise<string> => {
+    // TODO: Actually call the server for more followers
+    // If more are available, add them to the user's followers
+    return "No more followers to load"
+  }
+
+  public static loadMoreFollowing = async (): Promise<string> => {
+    // TODO: Actually call the server for more following
+    // If more are available, add them to the user's following
+    return "You aren't following any more users"
+  }
+
   /*==============
   Status Methods
   ==============*/
-  public static createStatus = (message: string): void => {
+  public static createStatus = async (message: string): Promise<void> => {
     let ID = localStorage.getItem("USER_ID")
     let user = ServerFacade.users.find(u => u.id === ID)
     if (!user || !ID) {
@@ -74,18 +87,38 @@ export default class ServerFacade {
     user.story.addStatus(status)
 
     // Add status to follower's feeds
-    user.followers.forEach(alias => {
-      let follower: User | null = ServerFacade.getUserByAlias(alias)
-      if (follower) {
-        follower.feed.addStatus(status)
-      }
+    user.followers.forEach(async alias => {
+      let follower: User = await ServerFacade.getUserByAlias(alias)
+      follower.feed.addStatus(status)
     })
+  }
+
+  public static loadMoreStory = async (): Promise<void> => {
+    // TODO: Actually call the server for more statuses
+    // if (true) {
+    //   throw new Error("No more statuses to load")
+    // }
+    // If more are available, add them to the user's story
+    StatusService.createStatus("I think this is sweet")
+    StatusService.createStatus("Here's a link to my startup 🚀")
+    StatusService.createStatus("Nice to see you @cgood")
+    StatusService.createStatus("Hey there!")
+    StatusService.createStatus("Awww yeah")
+    StatusService.createStatus("Lots of statuses")
+    StatusService.createStatus("Even more 🔥 takes")
+    StatusService.createStatus("Happy birthday Buzzle 🍰🥳")
+  }
+
+  public static loadMoreFeed = async (): Promise<string> => {
+    // TODO: Actually call the server for more statuses
+    // If more are available, add them to the user's feed
+    return "No more statuses"
   }
 
   /*==============
   Auth Methods
   ==============*/
-  public static login(alias: string, password: string): User {
+  public static async login(alias: string, password: string): Promise<User> {
     let user = this.users.find(u => u.alias === alias)
     if (user === null || user === undefined) {
       throw new Error("User not found")
@@ -96,7 +129,7 @@ export default class ServerFacade {
     return user
   }
 
-  public static signup(name: string, alias: string, password: string): User {
+  public static async signup(name: string, alias: string, password: string): Promise<User> {
     let user = this.users.find(u => u.alias === alias)
     if (user) {
       throw new Error("Alias already taken")
@@ -132,26 +165,26 @@ export default class ServerFacade {
     user.photo = URL
   }
 
-  public static getUsers() {
+  public static async getUsers() {
     return this.users
   }
 
-  public static getUser() {
+  public static async getUser() {
     return this.users[0]
   }
 
-  public static getUserByAlias(alias: string): User | null {
+  public static async getUserByAlias(alias: string): Promise<User> {
     let user = this.users.find(u => u.alias === alias)
     if (!user) {
-      return null 
+      throw new Error("User not found")
     }
     return user
   }
 
-  public static getUserByID(ID: string): User | null {
+  public static async getUserByID(ID: string): Promise<User> {
     let user = this.users.find(u => u.id === ID)
     if (!user) {
-      return null 
+      throw new Error("User not found")
     }
     return user
   }

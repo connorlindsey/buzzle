@@ -30,10 +30,10 @@ const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
     setValues({ ...values, [event.target.name]: event.target.value })
   }
 
-  const submitForm = (event: React.FormEvent<HTMLFormElement>): void => {
+  const submitForm = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setStatus(STATUS.LOADING);
-    const result = UserService.login(values.alias, values.password)
+    const result = await UserService.login(values.alias, values.password)
     if (result) {
       setStatus(STATUS.ERROR)
       setErrorMessage(result)
@@ -42,26 +42,16 @@ const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
 
       // TODO: Remove this in production
       // Have people follow logged in user
-      FollowerService.addFollowerManual("matt", values.alias)
-      FollowerService.addFollowerManual("cgood", values.alias)
-      FollowerService.addFollowerManual(values.alias, "cgood")
+      await FollowerService.addFollowerManual("matt", values.alias)
+      await FollowerService.addFollowerManual("cgood", values.alias)
+      await FollowerService.addFollowerManual(values.alias, "cgood")
 
       // Set up fake data
-      StatusService.createStatus("Wow, welcome to Buzzle 🔥")
-      StatusService.createStatus("Check out this cool thing 🚴‍♂️")
-      StatusService.createStatus("Another tweet 🐦. Hey there @tlane")
-      StatusService.createStatus("I think this is sweet")
-      StatusService.createStatus("Here's a link to my startup 🚀")
-      StatusService.createStatus("Nice to see you @cgood")
-      StatusService.createStatus("Hey there!")
-      StatusService.createStatus("Awww yeah")
-      StatusService.createStatus("Lots of statuses")
-      StatusService.createStatus("Even more 🔥 takes")
-      StatusService.createStatus("Pls send me money 💰")
-      StatusService.createStatus("Happy birthday Buzzle 🍰🥳")
-
-      history.push("/home")
+      await StatusService.createStatus("Wow, welcome to Buzzle 🔥")
+      await StatusService.createStatus("Check out this cool thing 🚴‍♂️")
+      await StatusService.createStatus("Another tweet 🐦. Hey there @tlane")
     }
+    history.push("/home")
   }
 
   const toggleForm = (): void => {

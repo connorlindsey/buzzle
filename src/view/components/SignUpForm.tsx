@@ -29,10 +29,10 @@ const SignUpForm: React.FC<Props> = ({ setCurrentForm }) => {
     setValues({ ...values, [event.target.name]: event.target.value })
   }
 
-  const submitForm = (event: React.FormEvent<HTMLFormElement>): void => {
+  const submitForm = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setStatus(STATUS.LOADING);
-    const result = UserService.signup(values.name, values.alias, values.password)
+    const result = await UserService.signup(values.name, values.alias, values.password)
     if (result) {
       setStatus(STATUS.ERROR)
       setErrorMessage(result)

@@ -5,17 +5,21 @@ import User from "../model/User"
 // the View and Server
 export default class UserService {
   // Returns a boolean indicating whether the current user is following the user with the given alias
-  static checkIsFollowing = (userID: string, alias: string): boolean => {
-    let user = ServerFacade.getUserByID(userID)
-    if (user && user.following.includes(alias)) {
-      return true
+  static checkIsFollowing = async (userID: string, alias: string): Promise<boolean> => {
+    try {
+      let user = await ServerFacade.getUserByID(userID)
+      if (user.following.includes(alias)) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false
     }
-    return false
   }
 
-  static signup = (name: string, alias: string, password: string): string => {
+  static signup = async (name: string, alias: string, password: string): Promise<string> => {
     try {
-      var user = ServerFacade.signup(name, alias, password)
+      var user = await ServerFacade.signup(name, alias, password)
       localStorage.setItem("USER_ID", user.ID)
     } catch (e) {
       if (e instanceof Error) {
@@ -25,9 +29,9 @@ export default class UserService {
     return ""
   }
 
-  static login = (alias: string, password: string): string => {
+  static login = async (alias: string, password: string): Promise<string> => {
     try {
-      var user = ServerFacade.login(alias, password)
+      var user = await ServerFacade.login(alias, password)
       localStorage.setItem("USER_ID", user.ID)
     } catch (e) {
       if (e instanceof Error) {
@@ -42,13 +46,13 @@ export default class UserService {
     return true
   }
 
-  static updatePicture = (file: File): string => {
-    let user = UserService.getCurrentUser()
+  static updatePicture = async (file: File): Promise<string> => {
+    let user = await UserService.getCurrentUser()
     if (!user) {
       return "You must be logged in to complete this operation"
     }
     try {
-      ServerFacade.updatePicture(user.ID, file)
+      await ServerFacade.updatePicture(user.ID, file)
     } catch (e) {
       if (e instanceof Error) {
         return e.message
@@ -56,18 +60,19 @@ export default class UserService {
     }
     return ""
   }
-  static getCurrentUser = (): User | null => {
+
+  static getCurrentUser = async (): Promise<User> => {
     let id = localStorage.getItem("USER_ID") || ""
-    let user = ServerFacade.getUserByID(id)
+    let user = await ServerFacade.getUserByID(id)
     return user
   }
 
-  static getUserByID = (id: string): User | null => {
-    let user = ServerFacade.getUserByID(id)
+  static getUserByID = async (id: string): Promise<User> => {
+    let user = await ServerFacade.getUserByID(id)
     return user
   }
-  static getUserByAlias = (alias: string): User | null => {
-    let user = ServerFacade.getUserByAlias(alias)
+  static getUserByAlias = async (alias: string): Promise<User> => {
+    let user = await ServerFacade.getUserByAlias(alias)
     return user
   }
 }

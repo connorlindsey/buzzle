@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Story from '../../model/Story'
 import ServerFacade from '../../network/ServerFacade'
 import AStatus from './AStatus'
@@ -19,26 +19,48 @@ const StoryView: React.FC<StoryProps> = ({ ID }) => {
   // Load the user story
   const [userStory, setUserStory] = useState<Story>()
   const [status, setStatus] = useState<STATUS>(STATUS.DEFAULT)
-  useEffect(() => {
-    if (!ID) {
-      // eslint-disable-next-line
-      ID = localStorage.getItem("USER_ID");
-    }
-    if (ID) {
-      let user = ServerFacade.getUserByID(ID)
-      if (user) {
-        setUserStory(user.story)
+  const [message, setMessage] = useState<string>()
+  const [val, setVal] = useState(0)
+
+  const updateStory = useCallback(
+    async () => {
+      if (!ID) {
+        // eslint-disable-next-line
+        ID = localStorage.getItem("USER_ID");
       }
-    }
-  }, [ID, userStory])
+      if (ID) {
+        try {
+          let user = await ServerFacade.getUserByID(ID)
+          setUserStory(user.story)
+        } catch (e) {
+          setUserStory(new Story())
+        }
+      }
+      // Track number of paginations
+      setVal(val + 1)
+    },
+    [],
+  )
+
+  useEffect(() => {
+    updateStory()
+  }, [updateStory])
 
   const loadStatuses = (): void => {
     setStatus(STATUS.LOADING)
-    const result = StatusService.loadStatuses()
+    const result = StatusService.loadMoreStory()
     if (result) {
+      setMessage(result)
       // An error has ocurred
-    setStatus(STATUS.ERROR)
+      setStatus(STATUS.ERROR)
+      setTimeout(() => {
+        setMessage("")
+        setStatus(STATUS.DEFAULT)
+      }, 2000)
+      return
     }
+
+    updateStory();
     setStatus(STATUS.DEFAULT)
   }
 
@@ -55,7 +77,8 @@ const StoryView: React.FC<StoryProps> = ({ ID }) => {
   return (
     <div>
       {userStory.statuses.map((s, i) => <AStatus status={s} key={i} />)}
-      <Button margin="1rem auto" onClick={loadStatuses}>{STATUS.LOADING ? "Loading..." : "See more"}</Button>
+      <Button margin="1rem auto" onClick={loadStatuses}>{status === STATUS.LOADING ? "Loading..." : "See more"}</Button>
+      {message && <h3>{message}</h3>}
     </div>
   )
 }

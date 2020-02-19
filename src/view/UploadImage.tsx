@@ -16,7 +16,7 @@ const UploadImage: React.FC = () => {
   const [status, setStatus] = useState<STATUS>(STATUS.READY)
   const [errorMessage, setErrorMessage] = useState<string>("")
 
-  const handleUpload = (event: React.MouseEvent): void => {
+  const handleUpload = async (event: React.MouseEvent): Promise<void> => {
     event.preventDefault();
     setStatus(STATUS.LOADING);
     if (!file) {
@@ -24,7 +24,7 @@ const UploadImage: React.FC = () => {
       setErrorMessage("Please upload an image")
       return;
     }
-    const result = UserService.updatePicture(file)
+    const result = await UserService.updatePicture(file)
     if (result) {
       setStatus(STATUS.ERROR)
       setErrorMessage(result)

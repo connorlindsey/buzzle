@@ -58,21 +58,22 @@ export default class User {
   // Followers
   getFollowers(): User[] {
     let users: User[] = []
-    this.followers.forEach(a => {
-      let user = ServerFacade.getUserByAlias(a)
-      if (user) users.push(user)
+    this.followers.forEach(async a => {
+      let user = await ServerFacade.getUserByAlias(a)
+      users.push(user)
     })
     return users
   }
-  getFollower(alias: string): User | undefined | null {
+  async getFollower(alias: string): Promise<User> {
     if (this.followers.includes(alias)) {
-      return ServerFacade.getUserByAlias(alias);
+      return await ServerFacade.getUserByAlias(alias);
     }
-    return null;
+    throw new Error("Follower not found")
   }
   addFollower(alias: string): void {
     if (!alias || this.followers.includes(alias)) return;
-    this.followers.push(alias)
+    console.log("Adding ", alias);
+    this.followers = [...this.followers, alias]
   }
   removeFollower(alias: string): void {
     this.followers = this.followers.filter(a => a !== alias)
@@ -81,21 +82,22 @@ export default class User {
   // Followers
   getFollowing(): User[] {
     let users: User[] = []
-    this.following.forEach(a => {
-      let user = ServerFacade.getUserByAlias(a)
-      if (user) users.push(user)
+    this.following.forEach(async a => {
+        let user = await ServerFacade.getUserByAlias(a)
+        users.push(user)
     })
     return users
   }
-  getFollowee(alias: string): User | undefined | null {
+  async getFollowee(alias: string): Promise<User> {
     if (this.following.includes(alias)) {
-      return ServerFacade.getUserByAlias(alias);
+      return await ServerFacade.getUserByAlias(alias);
     }
-    return null;
+    throw new Error("Followee not found")
   }
   addFollowing(alias: string): void {
     if (!alias || this.following.includes(alias)) return;
-    this.following.push(alias)
+    console.log("Adding ", alias);
+    this.following = [...this.following, alias]
   }
   removeFollowing(alias: string): void {
     if (!alias) return;
