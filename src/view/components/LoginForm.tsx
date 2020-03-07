@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { useHistory } from "react-router-dom";
 import { FORMS } from "../AuthView"
 import UserService from '../../services/UserService';
-import StatusService from '../../services/StatusService';
-import FollowerService from '../../services/FollowerService';
 
 interface Props {
   setCurrentForm: any
@@ -33,25 +31,19 @@ const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
   const submitForm = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setStatus(STATUS.LOADING);
+    
+    // Call login
     const result = await UserService.login(values.alias, values.password)
+
     if (result) {
+      // Display Error
       setStatus(STATUS.ERROR)
       setErrorMessage(result)
     } else {
+      // Log in successful!
       setStatus(STATUS.DONE)
-
-      // TODO: Remove this in production
-      // Have people follow logged in user
-      await FollowerService.addFollowerManual("matt", values.alias)
-      await FollowerService.addFollowerManual("cgood", values.alias)
-      await FollowerService.addFollowerManual(values.alias, "cgood")
-
-      // Set up fake data
-      await StatusService.createStatus("Wow, welcome to Buzzle 🔥")
-      await StatusService.createStatus("Check out this cool thing 🚴‍♂️")
-      await StatusService.createStatus("Another tweet 🐦. Hey there @tlane")
+      history.push("/home")
     }
-    history.push("/home")
   }
 
   const toggleForm = (): void => {

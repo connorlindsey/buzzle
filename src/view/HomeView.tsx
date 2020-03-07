@@ -20,13 +20,13 @@ enum TAB_SELECTION {
   FOLLOWERS
 }
 
-// TODO: Follow doesn't update view
 const HomeView: React.FC = () => {
   const history = useHistory()
   const [selection, setSelection] = useState<TAB_SELECTION>(TAB_SELECTION.STORY)
   const [user, setUser] = useState<User | null>()
   const [message, setMessage] = useState<string>("") // Status textarea
 
+  // Get the current user
   const getUser = useCallback(
     async (): Promise<void> => {
       try {
@@ -39,9 +39,12 @@ const HomeView: React.FC = () => {
 
   useEffect(() => {
     getUser()
-  }, [getUser, user])
+  }, [getUser])
 
 
+  /*================
+  Create status
+  =================*/
   const updateMessage = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(event.target.value);
   }
@@ -55,12 +58,17 @@ const HomeView: React.FC = () => {
     setMessage("")
   }
 
+  /*================
+  Create status
+  =================*/
   const logout = () => {
     UserService.logout()
     history.push("/")
   }
 
-  // Search
+  /*================
+  Search
+  =================*/
   const [search, setSearch] = useState<string>("")
   const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()

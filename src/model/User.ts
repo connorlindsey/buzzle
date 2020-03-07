@@ -15,7 +15,7 @@ export default class User {
   photo: string
 
   constructor(password: string, name: string, alias: string, photo: string) {
-    this.id = uuid()
+    this.id = "alskdjf"
     this.password = password
     this.name = name
     this.alias = alias

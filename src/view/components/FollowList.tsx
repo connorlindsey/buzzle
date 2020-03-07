@@ -32,7 +32,7 @@ const FollowList: React.FC<FollowListProps> = ({ ID, followers }) => {
       }
       try {
         // TODO: Get more users if pagination has increased
-        setUser(await UserService.getUserByID(ID));
+        setUser(await UserService.getUserByAlias(ID));
         if (followers) {
           setUsers(await FollowerService.loadMoreFollowers(pag, ID))
         } else {

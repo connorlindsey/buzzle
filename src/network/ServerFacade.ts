@@ -33,46 +33,55 @@ const userE: User = new User(
   "https://source.unsplash.com/1600x900/?person,mountain,nature"
 )
 
+// Endpoint
+const URL = "https://3kslqr7o7h.execute-api.us-east-1.amazonaws.com/dev"
+
 export default class ServerFacade {
   static users: User[] = [userA, userB, userC, userD, userE]
   /*==============
   Follow Methods
   ==============*/
-  public static addFollower = async (followerAlias: string, followeeAlias: string): Promise<void> => {
-    let follower = await ServerFacade.getUserByAlias(followerAlias);
-    let followee = await ServerFacade.getUserByAlias(followeeAlias);
+  public static addFollower = async (
+    followerAlias: string,
+    followeeAlias: string
+  ): Promise<void> => {
+    let follower = await ServerFacade.getUserByAlias(followerAlias)
+    let followee = await ServerFacade.getUserByAlias(followeeAlias)
 
     // Follower is not following followee
-    follower?.addFollowing(followeeAlias);
+    follower?.addFollowing(followeeAlias)
     // Followee now has "follower" as a follower
-    followee?.addFollower(followerAlias);
+    followee?.addFollower(followerAlias)
   }
 
-  public static removeFollower = async (followerAlias: string, followeeAlias: string): Promise<void> => {
-    let follower = await ServerFacade.getUserByAlias(followerAlias);
-    let followee = await ServerFacade.getUserByAlias(followeeAlias);
+  public static removeFollower = async (
+    followerAlias: string,
+    followeeAlias: string
+  ): Promise<void> => {
+    let follower = await ServerFacade.getUserByAlias(followerAlias)
+    let followee = await ServerFacade.getUserByAlias(followeeAlias)
 
     // Follower is no longer following followee
-    follower?.removeFollowing(followeeAlias);
+    follower?.removeFollowing(followeeAlias)
     // Followee no longer lists "follower" as a follower
-    followee?.removeFollower(followerAlias);
+    followee?.removeFollower(followerAlias)
   }
 
-  public static loadMoreFollowers = async (pag: number, ID: string): Promise<User[]> => {
+  public static loadMoreFollowers = async (pag: number, alias: string): Promise<User[]> => {
     // TODO: Actually call the server for more statuses
     if (false) {
       throw new Error("No more followers to load")
     }
-    let user = await ServerFacade.getUserByID(ID);
+    let user = await ServerFacade.getUserByAlias(alias)
     return await user.getFollowers()
   }
 
-  public static loadMoreFollowing = async (pag: number, ID: string): Promise<User[]> => {
+  public static loadMoreFollowing = async (pag: number, alias: string): Promise<User[]> => {
     // TODO: Actually call the server for more statuses
     if (false) {
       throw new Error("No more following to load")
     }
-    let user = await ServerFacade.getUserByID(ID);
+    let user = await ServerFacade.getUserByAlias(alias)
     return await user.getFollowing()
   }
 
@@ -98,106 +107,148 @@ export default class ServerFacade {
     })
   }
 
-  public static loadMoreStory = async (pag: number, ID: string): Promise<Status[]> => {
+  public static loadMoreStory = async (pag: number, alias: string): Promise<Status[]> => {
     // TODO: Actually call the server for more statuses
     if (false) {
       throw new Error("No more statuses to load")
     }
-    let user = await ServerFacade.getUserByID(ID);
+    let user = await ServerFacade.getUserByAlias(alias)
     user.story.loadStatuses([
       new Status(user.alias, "I think this is sweet"),
       new Status(user.alias, "Here's a link to my startup 🚀"),
-      new Status(user.alias, "Happy birthday Buzzle 🍰🥳")
+      new Status(user.alias, "Happy birthday Buzzle 🍰🥳"),
     ])
     return user.story.statuses
   }
 
-  public static loadMoreFeed = async (pag: number, ID: string): Promise<Status[]> => {
+  public static loadMoreFeed = async (pag: number, alias: string): Promise<Status[]> => {
     // TODO: Actually call the server for more statuses
     // If more are available, add them to the user's feed
     if (false) {
       throw new Error("No more statuses to load")
     }
-    let user = await ServerFacade.getUserByID(ID);
-    // user.feed.loadStatuses([
-    //   new Status(user.alias, "I think this is sweet"),
-    //   new Status(user.alias, "Here's a link to my startup 🚀"),
-    //   new Status(user.alias, "Happy birthday Buzzle 🍰🥳")
-    // ])
+    let user = await ServerFacade.getUserByAlias(alias)
     return user.feed.statuses
   }
-
+  //
   /*==============
   Auth Methods
   ==============*/
   public static async login(alias: string, password: string): Promise<User> {
-    let user = this.users.find(u => u.alias === alias)
-    if (user === null || user === undefined) {
-      throw new Error("User not found")
+    // Make login request
+    const res = await fetch(`${URL}/signin`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ alias, password }),
+    })
+    const json = await res.json()
+
+    // Check for errors
+    if (res.status !== 200) {
+      throw new Error(json.message)
     }
-    if (user?.password !== password) {
-      throw new Error("Incorrect password")
-    }
-    return user
+
+    // Set auth Token
+    localStorage.setItem("TOKEN", json.token)
+
+    // Return new user
+    return new User(
+      json.user.password,
+      json.user.name,
+      json.user.alias,
+      "https://source.unsplash.com/1600x900/?person,mountain,nature"
+    )
   }
 
   public static async signup(name: string, alias: string, password: string): Promise<User> {
-    let user = this.users.find(u => u.alias === alias)
-    if (user) {
-      throw new Error("Alias already taken")
+    // Make signup request
+    const res = await fetch(`${URL}/signup`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ alias, password, name }),
+    })
+    const json = await res.json()
+
+    // Check for errors
+    if (res.status !== 200) {
+      throw new Error(json.message)
     }
-    user = new User(password, name, alias, "")
-    this.users.push(user)
-    return user
+
+    // Set auth Token
+    localStorage.setItem("TOKEN", json.token)
+
+    // Return new user
+    return new User(
+      json.user.password,
+      json.user.name,
+      json.user.alias,
+      "https://source.unsplash.com/1600x900/?person,mountain,nature"
+    )
   }
 
-  public static async updatePicture(id: string, file: File): Promise<void> {
+  public static async updatePicture(file: File): Promise<void> {
     // Validate file
     if (!file) {
       throw new Error("No file uploaded")
     }
 
-    // Find user
-    let user = this.users.find(u => u.id === id)
-    if (!user) {
-      throw new Error("User not found")
+    let token = localStorage.getItem("TOKEN")
+    if (!token) {
+      throw new Error("You must be logged in")
     }
 
-    // TODO: Implement this with Lambda / S3
-    // Send image to lambda to upload to S3
+    // Upload Image to S3
+    // TODO: Include authToken
     // const formData = new FormData()
     // formData.append("profilePicture", file, file.name)
-    // const res = await fetch("endpoint", {
-    //   method: "POST",
-    //   body: formData,
-    // })
-    // const json = await res.json()
-    // console.log("Update picture", json)
-    let URL = "https://source.unsplash.com/1600x900/?person,mountain,nature"
-    user.photo = URL
-  }
+    const res = await fetch(`${URL}/profileImage`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": token
+      },
+      body: JSON.stringify({ message: "HEELLO" })
+    })
+    const json = await res.json()
+    console.log("json", json)
 
-  public static async getUsers() {
-    return this.users
-  }
-
-  public static async getUser() {
-    return this.users[0]
+    // Check for errors
+    if (res.status !== 200) {
+      throw new Error(json.message)
+    }
   }
 
   public static async getUserByAlias(alias: string): Promise<User> {
-    let user = this.users.find(u => u.alias === alias)
-    if (!user) {
-      throw new Error("User not found")
-    }
-    return user
-  }
+    // Make signup request
+    console.log("Getting user")
+    const res = await fetch(`${URL}/user/${alias}`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    const json = await res.json()
+    console.log('json', json)
 
-  public static async getUserByID(ID: string): Promise<User> {
-    let user = this.users.find(u => u.id === ID)
-    if (!user) {
-      throw new Error("User not found")
+    // Check for errors
+    if (res.status !== 200) {
+      throw new Error(json.message)
     }
-    return user
+
+    // Return new user
+    return new User(
+      "No password",
+      json.user.name,
+      json.user.alias,
+      "https://source.unsplash.com/1600x900/?person,mountain,nature"
+    )
   }
 }

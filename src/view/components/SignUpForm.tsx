@@ -32,11 +32,16 @@ const SignUpForm: React.FC<Props> = ({ setCurrentForm }) => {
   const submitForm = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setStatus(STATUS.LOADING);
+
+    // Call signup
     const result = await UserService.signup(values.name, values.alias, values.password)
+
     if (result) {
+      // Display error
       setStatus(STATUS.ERROR)
       setErrorMessage(result)
     } else {
+      // Sign up success!
       setStatus(STATUS.DONE)
       history.push("/upload-image")
     }

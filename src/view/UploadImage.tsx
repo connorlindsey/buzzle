@@ -19,16 +19,24 @@ const UploadImage: React.FC = () => {
   const handleUpload = async (event: React.MouseEvent): Promise<void> => {
     event.preventDefault();
     setStatus(STATUS.LOADING);
+
+    // Check theere is a file
     if (!file) {
       setStatus(STATUS.ERROR)
       setErrorMessage("Please upload an image")
       return;
     }
+
+    // Get presigned data
+    // Get URL // https://blog.webiny.com/upload-files-to-aws-s3-using-pre-signed-post-data-and-a-lambda-function-7a9fb06d56c1
+    // Call update picture
     const result = await UserService.updatePicture(file)
     if (result) {
+      console.log("Error")
       setStatus(STATUS.ERROR)
       setErrorMessage(result)
     } else {
+      console.log("Yay :D")
       setStatus(STATUS.DONE)
       history.push("/home")
     }
