@@ -25,14 +25,18 @@ const HomeView: React.FC = () => {
   const [selection, setSelection] = useState<TAB_SELECTION>(TAB_SELECTION.STORY)
   const [user, setUser] = useState<User | null>()
   const [message, setMessage] = useState<string>("") // Status textarea
+  const [status, setStatus] = useState<string>("START");
 
   // Get the current user
   const getUser = useCallback(
     async (): Promise<void> => {
+      setStatus("LOADING")
       try {
         const tmp = await UserService.getCurrentUser();
         setUser(tmp);
+        setStatus("DONE")
       } catch (e) {
+        setStatus("ERROR")
         setUser(null);
       }
     }, [])
@@ -61,9 +65,14 @@ const HomeView: React.FC = () => {
   /*================
   Create status
   =================*/
-  const logout = () => {
-    UserService.logout()
-    history.push("/")
+  const logout = async () => {
+    let res = await UserService.logout()
+    if (res) {
+      alert(res)
+      history.push("/")
+    } else {
+      setMessage("An error has ocurred")
+    }
   }
 
   /*================
@@ -73,6 +82,15 @@ const HomeView: React.FC = () => {
   const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     history.push(`/profile/${search}`)
+  }
+
+  // Loading
+  if (status === "LOADING") {
+    return (
+      <Container>
+        <h1>Loading...</h1>
+      </Container>
+    )
   }
 
   // Redirect to login screen if user is not found

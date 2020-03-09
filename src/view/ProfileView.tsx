@@ -10,7 +10,7 @@ import styled from "styled-components";
 import Story from './components/Story';
 import FollowList from './components/FollowList';
 import FollowerService from '../services/FollowerService';
-import UserService from '../services/UserService';
+// import UserService from '../services/UserService';
 
 enum TAB_SELECTION {
   STORY,
@@ -22,23 +22,33 @@ enum TAB_SELECTION {
 const ProfileView: React.FC = () => {
   const history = useHistory()
   const { alias } = useParams();
-  const [user, setUser] = useState<User | null>()
+  const [user, setUser] = useState<User | null>(null)
   const [selection, setSelection] = useState<TAB_SELECTION>(TAB_SELECTION.STORY)
   const [isFollowing, setIsFollowing] = useState<boolean>(false)
   const [canFollow, setCanFollow] = useState<boolean>(true)
+  const [status, setStatus] = useState<string>("DONE")
 
   const updateUser = useCallback(
     async () => {
+      setStatus("LOADING");
       if (alias) {
-        setUser(await ServerFacade.getUserByAlias(alias))
-        let ID = localStorage.getItem("USER_ID")
-        if (user && user.id === ID) {
+        try {
+          let res = await ServerFacade.getUserByAlias(alias)
+          setUser(res)
+          setStatus("DONE");
+        } catch (e) {
+          setStatus("ERROR");
+        }
+        let loggedInAlias = localStorage.getItem("USER_ALIAS") || ""
+        if (user && user.alias === loggedInAlias) {
           setCanFollow(false)
-        } else if (ID) {
-          setIsFollowing(await UserService.checkIsFollowing(ID, alias))
+        } else if (alias) {
+          setIsFollowing(false);
+          // setIsFollowing(await UserService.checkIsFollowing(loggedInAlias, alias))
         }
       }
-    }, [user, alias]
+      // eslint-disable-next-line
+    }, [alias]
   )
 
   // Calculate the following relationship
@@ -46,7 +56,16 @@ const ProfileView: React.FC = () => {
     updateUser()
   }, [updateUser])
 
-  if (!user || !alias) {
+  // Loading
+  if (status === "LOADING") {
+    return (
+      <Container>
+        <h1>Loading...</h1>
+      </Container>
+    )
+  }
+
+  if (!user || !alias || status === "ERROR") {
     return (
       <Container>
         <h3>No user found with the following username: @{alias}</h3>
@@ -69,10 +88,10 @@ const ProfileView: React.FC = () => {
       content = <Story ID={user.id} />
       break;
     case TAB_SELECTION.FOLLOWERS:
-      content = <FollowList ID={user.id} followers={true} />
+      content = <FollowList alias={user.alias} followers={true} />
       break;
     case TAB_SELECTION.FOLLOWING:
-      content = <FollowList ID={user.id} followers={false} />
+      content = <FollowList alias={user.alias} followers={false} />
       break;
     default:
       content = <h2>An error has occurred</h2>

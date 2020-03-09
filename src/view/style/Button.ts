@@ -33,6 +33,12 @@ export default styled.button<ButtonProps>`
     border-color: ${props => props.theme.primary["600"]};
     color: #fff;
   }
+
+  &[disabled] {
+    background-color: ${props => props.theme.grey["600"]};
+    border-color: ${props => props.theme.grey["600"]};
+    color: #fff;
+  }
 `
 
 export const SecondaryButton = styled.button<ButtonProps>`

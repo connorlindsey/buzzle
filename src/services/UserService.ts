@@ -42,10 +42,18 @@ export default class UserService {
     return ""
   }
 
-  static logout = (): boolean => {
-    localStorage.removeItem("USER_ALIAS")
-    localStorage.removeItem("TOKEN")
-    return true
+  static logout = async (): Promise<string> => {
+    try {
+      let res: string = await ServerFacade.logout();
+      localStorage.removeItem("USER_ALIAS")
+      localStorage.removeItem("TOKEN")
+      return res;
+    } catch (e) {
+      if (e instanceof Error) {
+        return e.message
+      }
+    }
+    return ""
   }
 
   static updatePicture = async (file: File): Promise<string> => {

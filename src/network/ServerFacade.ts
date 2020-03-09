@@ -68,21 +68,37 @@ export default class ServerFacade {
   }
 
   public static loadMoreFollowers = async (pag: number, alias: string): Promise<User[]> => {
-    // TODO: Actually call the server for more statuses
-    if (false) {
-      throw new Error("No more followers to load")
+    // Load more followers
+    const res = await fetch(`${URL}/followers/${alias}`, {
+      method: "GET",
+      mode: "cors",
+    })
+    const json = await res.json()
+
+    // Check for errors
+    if (res.status !== 200) {
+      throw new Error(json.message)
     }
-    let user = await ServerFacade.getUserByAlias(alias)
-    return await user.getFollowers()
+
+    return json.followers.map(u => new User(u.password, u.name, u.alias, u.photo))
   }
 
   public static loadMoreFollowing = async (pag: number, alias: string): Promise<User[]> => {
-    // TODO: Actually call the server for more statuses
-    if (false) {
-      throw new Error("No more following to load")
+    // Load more followers
+    console.log("Loading following")
+    const res = await fetch(`${URL}/following/${alias}`, {
+      method: "GET",
+      mode: "cors",
+    })
+    const json = await res.json()
+
+    // Check for errors
+    if (res.status !== 200) {
+      throw new Error(json.message)
     }
-    let user = await ServerFacade.getUserByAlias(alias)
-    return await user.getFollowing()
+    console.log(json.following)
+
+    return json.following.map(u => new User(u.password, u.name, u.alias, u.photo))
   }
 
   /*==============
@@ -217,7 +233,6 @@ export default class ServerFacade {
       body: JSON.stringify({ message: "HEELLO" })
     })
     const json = await res.json()
-    console.log("json", json)
 
     // Check for errors
     if (res.status !== 200) {
@@ -226,17 +241,18 @@ export default class ServerFacade {
   }
 
   public static async getUserByAlias(alias: string): Promise<User> {
+    if (!alias) {
+      throw new Error("Unexpected error")
+    }
+
     // Make signup request
-    console.log("Getting user")
+    console.log("Getting user in server facade")
     const res = await fetch(`${URL}/user/${alias}`, {
       method: "GET",
       mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
     })
     const json = await res.json()
-    console.log('json', json)
+    console.log('json response getUserByAlias', json)
 
     // Check for errors
     if (res.status !== 200) {
@@ -250,5 +266,20 @@ export default class ServerFacade {
       json.user.alias,
       "https://source.unsplash.com/1600x900/?person,mountain,nature"
     )
+  }
+
+  public static async logout(): Promise<string> {
+    const res = await fetch(`${URL}/signout`, {
+      method: "POST",
+      mode: "cors"
+    })
+    const json = await res.json()
+
+    // Check for errors
+    if (res.status !== 200) {
+      throw new Error(json.message)
+    }
+
+    return json.message;
   }
 }

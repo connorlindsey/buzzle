@@ -1,6 +1,5 @@
 import Story from "./Story"
 import Feed from "./Feed"
-import { v4 as uuid } from "uuid"
 import ServerFacade from "../network/ServerFacade"
 
 export default class User {

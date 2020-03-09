@@ -12,7 +12,7 @@ export default class FollowerService {
   }
 
   public static async removeFollower(alias: string): Promise<void> {
-    // let ID = localStorage.getItem("USER_ID") || "" 
+    // let ID = localStorage.getItem("USER_ID") || ""
     // TODO: Fix this
     let user = await ServerFacade.getUserByAlias(alias)
     let currentAlias = user.alias
@@ -27,15 +27,15 @@ export default class FollowerService {
     try {
       return await ServerFacade.loadMoreFollowers(pag, alias)
     } catch (e) {
-      throw e;
+      throw e
     }
   }
 
-  static loadMoreFollowing = async (pag: number, ID: string): Promise<User[]> => {
+  static loadMoreFollowing = async (pag: number, alias: string): Promise<User[]> => {
     try {
-      return await ServerFacade.loadMoreFollowing(pag, ID)
+      return await ServerFacade.loadMoreFollowing(pag, alias)
     } catch (e) {
-      throw e;
+      throw e
     }
   }
 }
