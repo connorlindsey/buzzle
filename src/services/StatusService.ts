@@ -18,17 +18,17 @@ export default class StatusService {
     return ""
   }
 
-  static loadMoreStory = async (pag: number, ID: string): Promise<Status[]> => {
+  static loadMoreStory = async (pag: number, alias: string): Promise<Status[]> => {
     try {
-      return await ServerFacade.loadMoreStory(pag, ID)
+      return await ServerFacade.loadMoreStory(pag, alias)
     } catch (e) {
       throw e;
     }
   }
 
-  static loadMoreFeed = async (pag: number, ID: string): Promise<Status[]> => {
+  static loadMoreFeed = async (pag: number, alias: string): Promise<Status[]> => {
     try {
-      return await ServerFacade.loadMoreFeed(pag, ID)
+      return await ServerFacade.loadMoreFeed(pag, alias)
     } catch (e) {
       throw e;
     }

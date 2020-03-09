@@ -85,7 +85,6 @@ export default class ServerFacade {
 
   public static loadMoreFollowing = async (pag: number, alias: string): Promise<User[]> => {
     // Load more followers
-    console.log("Loading following")
     const res = await fetch(`${URL}/following/${alias}`, {
       method: "GET",
       mode: "cors",
@@ -96,9 +95,23 @@ export default class ServerFacade {
     if (res.status !== 200) {
       throw new Error(json.message)
     }
-    console.log(json.following)
 
     return json.following.map(u => new User(u.password, u.name, u.alias, u.photo))
+  }
+
+  public static isFollowing = async (userA: string, userB: string): Promise<boolean> => {
+    const res = await fetch(`${URL}/following/is/${userA}/following/${userB}`, {
+      method: "GET",
+      mode: "cors",
+    })
+    const json = await res.json()
+
+    // Check for errors
+    if (res.status !== 200) {
+      throw new Error(json.message)
+    }
+
+    return json.following
   }
 
   /*==============
@@ -124,27 +137,45 @@ export default class ServerFacade {
   }
 
   public static loadMoreStory = async (pag: number, alias: string): Promise<Status[]> => {
-    // TODO: Actually call the server for more statuses
-    if (false) {
-      throw new Error("No more statuses to load")
+    // Load more followers
+    const res = await fetch(`${URL}/story/${alias}`, {
+      method: "GET",
+      mode: "cors",
+    })
+    const json = await res.json()
+
+    // Check for errors
+    if (res.status !== 200) {
+      throw new Error(json.message)
     }
-    let user = await ServerFacade.getUserByAlias(alias)
-    user.story.loadStatuses([
-      new Status(user.alias, "I think this is sweet"),
-      new Status(user.alias, "Here's a link to my startup 🚀"),
-      new Status(user.alias, "Happy birthday Buzzle 🍰🥳"),
-    ])
-    return user.story.statuses
+
+    return json.story.map(s => new Status(alias, s))
   }
 
   public static loadMoreFeed = async (pag: number, alias: string): Promise<Status[]> => {
-    // TODO: Actually call the server for more statuses
-    // If more are available, add them to the user's feed
-    if (false) {
-      throw new Error("No more statuses to load")
+    // Load more followers    
+    
+    let token = localStorage.getItem("TOKEN")
+    if (!token) {
+      throw new Error("You must be logged in")
     }
-    let user = await ServerFacade.getUserByAlias(alias)
-    return user.feed.statuses
+    console.log("Getting feed", token)
+    const res = await fetch(`${URL}/feed/${alias}`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        Authorizaton: token
+      }
+    })
+    const json = await res.json()
+
+    // Check for errors
+    if (res.status !== 200) {
+      throw new Error(json.message)
+    }
+
+    return json.feed.map(s => new Status(s.alias, s.message))
   }
   //
   /*==============
@@ -228,9 +259,9 @@ export default class ServerFacade {
       mode: "cors",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": token
+        Authorization: token,
       },
-      body: JSON.stringify({ message: "HEELLO" })
+      body: JSON.stringify({ message: "HEELLO" }),
     })
     const json = await res.json()
 
@@ -246,13 +277,11 @@ export default class ServerFacade {
     }
 
     // Make signup request
-    console.log("Getting user in server facade")
     const res = await fetch(`${URL}/user/${alias}`, {
       method: "GET",
       mode: "cors",
     })
     const json = await res.json()
-    console.log('json response getUserByAlias', json)
 
     // Check for errors
     if (res.status !== 200) {
@@ -269,9 +298,17 @@ export default class ServerFacade {
   }
 
   public static async logout(): Promise<string> {
+    let token = localStorage.getItem("TOKEN")
+    if (!token) {
+      throw new Error("You must be logged in")
+    }
+
     const res = await fetch(`${URL}/signout`, {
       method: "POST",
-      mode: "cors"
+      mode: "cors",
+      headers: {
+        Authorization: token,
+      },
     })
     const json = await res.json()
 
@@ -280,6 +317,6 @@ export default class ServerFacade {
       throw new Error(json.message)
     }
 
-    return json.message;
+    return json.message
   }
 }

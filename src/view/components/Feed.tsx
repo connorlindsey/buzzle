@@ -5,7 +5,7 @@ import StatusService from '../../services/StatusService'
 import Status from '../../model/Status'
 
 interface FeedProps {
-  ID?: string | null
+  alias?: string | null
 }
 
 enum STATUS {
@@ -15,7 +15,7 @@ enum STATUS {
 }
 
 // Component which renders a list of statuses
-const FeedView: React.FC<FeedProps> = ({ ID }) => {
+const FeedView: React.FC<FeedProps> = ({ alias }) => {
   // Load the user feed
   const [statuses, setStatuses] = useState<Status[]>([])
   const [status, setStatus] = useState<STATUS>(STATUS.DEFAULT)
@@ -25,12 +25,12 @@ const FeedView: React.FC<FeedProps> = ({ ID }) => {
   const updateFeed = useCallback(
     async () => {
       setStatus(STATUS.LOADING)
-      if (!ID) {
+      if (!alias) {
         // eslint-disable-next-line
-        ID = localStorage.getItem("USER_ID") || "";
+        alias = localStorage.getItem("USER_ALIAS") || "";
       }
       try {
-        setStatuses(await StatusService.loadMoreFeed(pag, ID))
+        setStatuses(await StatusService.loadMoreFeed(pag, alias))
         setStatus(STATUS.DEFAULT)
       } catch (e) {
         if (e instanceof Error) {

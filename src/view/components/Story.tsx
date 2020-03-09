@@ -5,7 +5,7 @@ import Button from "../style/Button"
 import StatusService from '../../services/StatusService'
 
 interface StoryProps {
-  ID?: string | null
+  alias?: string | null
 }
 
 enum STATUS {
@@ -14,7 +14,7 @@ enum STATUS {
   ERROR
 }
 
-const StoryView: React.FC<StoryProps> = ({ ID }) => {
+const StoryView: React.FC<StoryProps> = ({ alias }) => {
   // Load the user story
   const [statuses, setStatuses] = useState<Status[]>([])
   const [status, setStatus] = useState<STATUS>(STATUS.DEFAULT)
@@ -24,13 +24,12 @@ const StoryView: React.FC<StoryProps> = ({ ID }) => {
   const updateStory = useCallback(
     async () => {
       setStatus(STATUS.LOADING)
-      if (!ID) {
+      if (!alias) {
         // eslint-disable-next-line
-        ID = localStorage.getItem("USER_ID") || "";
+        alias = localStorage.getItem("USER_ALIAS") || "";
       }
       try {
-        console.log("I'm trying to get more statuses")
-        setStatuses(await StatusService.loadMoreStory(pag, ID))
+        setStatuses(await StatusService.loadMoreStory(pag, alias))
         setStatus(STATUS.DEFAULT)
       } catch (e) {
         if (e instanceof Error) {

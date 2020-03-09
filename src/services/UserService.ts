@@ -5,16 +5,8 @@ import User from "../model/User"
 // the View and Server
 export default class UserService {
   // Returns a boolean indicating whether the current user is following the user with the given alias
-  static checkIsFollowing = async (userID: string, alias: string): Promise<boolean> => {
-    try {
-      let user = await ServerFacade.getUserByAlias(userID)
-      if (user.following.includes(alias)) {
-        return true;
-      }
-      return false;
-    } catch (e) {
-      return false
-    }
+  static checkIsFollowing = async (userA: string, userB: string): Promise<boolean> => {
+    return ServerFacade.isFollowing(userA, userB)
   }
 
   static signup = async (name: string, alias: string, password: string): Promise<string> => {
@@ -44,10 +36,10 @@ export default class UserService {
 
   static logout = async (): Promise<string> => {
     try {
-      let res: string = await ServerFacade.logout();
+      let res: string = await ServerFacade.logout()
       localStorage.removeItem("USER_ALIAS")
       localStorage.removeItem("TOKEN")
-      return res;
+      return res
     } catch (e) {
       if (e instanceof Error) {
         return e.message

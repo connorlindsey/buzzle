@@ -10,7 +10,7 @@ import styled from "styled-components";
 import Story from './components/Story';
 import FollowList from './components/FollowList';
 import FollowerService from '../services/FollowerService';
-// import UserService from '../services/UserService';
+import UserService from '../services/UserService';
 
 enum TAB_SELECTION {
   STORY,
@@ -30,21 +30,25 @@ const ProfileView: React.FC = () => {
 
   const updateUser = useCallback(
     async () => {
-      setStatus("LOADING");
       if (alias) {
+        setStatus("LOADING");
         try {
+          // Get the user to display
           let res = await ServerFacade.getUserByAlias(alias)
           setUser(res)
+
+          // Check if the user is the logged in user
+          let loggedInAlias = localStorage.getItem("USER_ALIAS") || ""
+          if (alias === loggedInAlias) {
+            setCanFollow(false)
+          } else {
+            let isFollowing = await UserService.checkIsFollowing(loggedInAlias, alias);
+            setIsFollowing(isFollowing)
+            setCanFollow(true)
+          }
           setStatus("DONE");
         } catch (e) {
           setStatus("ERROR");
-        }
-        let loggedInAlias = localStorage.getItem("USER_ALIAS") || ""
-        if (user && user.alias === loggedInAlias) {
-          setCanFollow(false)
-        } else if (alias) {
-          setIsFollowing(false);
-          // setIsFollowing(await UserService.checkIsFollowing(loggedInAlias, alias))
         }
       }
       // eslint-disable-next-line
@@ -85,7 +89,7 @@ const ProfileView: React.FC = () => {
   let content;
   switch (selection) {
     case TAB_SELECTION.STORY:
-      content = <Story ID={user.id} />
+      content = <Story alias={user.alias} />
       break;
     case TAB_SELECTION.FOLLOWERS:
       content = <FollowList alias={user.alias} followers={true} />
@@ -113,6 +117,7 @@ const ProfileView: React.FC = () => {
                 <div>@{user.alias}</div>
               </div>
             </ProfileInfo>
+            {canFollow}
             {canFollow &&
               <FollowButton following={isFollowing} onClick={handleFollow}>{isFollowing ? "Following" : "Follow"}</FollowButton>
             }
