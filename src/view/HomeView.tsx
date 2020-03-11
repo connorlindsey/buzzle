@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useHistory } from 'react-router-dom'
 import styled from "styled-components"
 
@@ -10,7 +10,6 @@ import { Form, Textarea } from "./style/Form"
 import Button, { TertiaryButton } from "./style/Button"
 import UserService from '../services/UserService';
 import PleaseSignIn from './components/PleaseSignIn';
-import User from '../model/User';
 import StatusService from '../services/StatusService';
 
 enum TAB_SELECTION {
@@ -23,27 +22,17 @@ enum TAB_SELECTION {
 const HomeView: React.FC = () => {
   const history = useHistory()
   const [selection, setSelection] = useState<TAB_SELECTION>(TAB_SELECTION.STORY)
-  const [user, setUser] = useState<User | null>()
+  const [user, setUser] = useState<any>(null)
   const [message, setMessage] = useState<string>("") // Status textarea
   const [status, setStatus] = useState<string>("START");
 
-  // Get the current user
-  const getUser = useCallback(
-    async (): Promise<void> => {
-      setStatus("LOADING")
-      try {
-        const tmp = await UserService.getCurrentUser();
-        setUser(tmp);
-        setStatus("DONE")
-      } catch (e) {
-        setStatus("ERROR")
-        setUser(null);
-      }
-    }, [])
-
   useEffect(() => {
-    getUser()
-  }, [getUser])
+    setStatus("LOADING");
+    UserService.getCurrentUser().then(u => {
+      setUser(u)
+      setStatus("START");
+    });
+  }, [])
 
 
   /*================
@@ -53,12 +42,17 @@ const HomeView: React.FC = () => {
     setMessage(event.target.value);
   }
 
-  const createStatus = (event: React.FormEvent<HTMLFormElement>) => {
+  const createStatus = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (message.length === 0) {
+    if (message.length === 0 || message.length > 280) {
       return;
     }
-    StatusService.createStatus(message)
+    let msg = await StatusService.createStatus(user.alias, message)
+    if (msg) {
+      alert(msg)
+    } else {
+      alert("Status created successfully!")
+    }
     setMessage("")
   }
 
@@ -148,11 +142,11 @@ const HomeView: React.FC = () => {
               placeholder="Craft your message"
               id="description"
               name="description"
-              maxLength={120}
+              maxLength={280}
               required
               value={message}
               onChange={updateMessage}
-              isMaxLength={message.length >= 115} />
+              isMaxLength={message.length >= 275} />
             <Button margin=".5rem 0" type="submit">New Status</Button>
           </Form>
 

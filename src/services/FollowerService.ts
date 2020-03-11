@@ -5,7 +5,7 @@ import User from "../model/User"
 // the View and Server
 export default class FollowerService {
   public static async addFollower(alias: string): Promise<void> {
-    let ID = localStorage.getItem("USER_ID") || ""
+    let ID = localStorage.getItem("USER_ALIAS") || ""
     let user = await ServerFacade.getUserByAlias(ID)
     let currentAlias = user.alias
     await ServerFacade.addFollower(currentAlias, alias)

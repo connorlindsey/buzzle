@@ -62,6 +62,7 @@ export default class UserService {
   static getCurrentUser = async (): Promise<User> => {
     let alias = localStorage.getItem("USER_ALIAS") || ""
     let user = await ServerFacade.getUserByAlias(alias)
+    console.log(user);
     return user
   }
 

@@ -4,12 +4,12 @@ import Status from "../model/Status"
 // Handle common tasks related to statuses by communicating between
 // the View and Server
 export default class StatusService {
-  static createStatus = (message: string): string => {
+  static createStatus = async (alias: string, message: string): Promise<string> => {
     try {
-      if (message.length > 120) {
+      if (message.length > 280) {
         return "Status is too long"
       }
-      ServerFacade.createStatus(message)
+      await ServerFacade.createStatus(alias, message)
     } catch (e) {
       if (e instanceof Error) {
         return e.message

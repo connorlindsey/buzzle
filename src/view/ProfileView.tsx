@@ -34,6 +34,7 @@ const ProfileView: React.FC = () => {
         setStatus("LOADING");
         try {
           // Get the user to display
+          console.log("Getting usre in profile page")
           let res = await ServerFacade.getUserByAlias(alias)
           setUser(res)
 

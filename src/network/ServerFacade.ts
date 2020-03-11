@@ -45,6 +45,8 @@ export default class ServerFacade {
     followerAlias: string,
     followeeAlias: string
   ): Promise<void> => {
+
+    console.log("Adding followeer in facade");
     let follower = await ServerFacade.getUserByAlias(followerAlias)
     let followee = await ServerFacade.getUserByAlias(followeeAlias)
 
@@ -58,6 +60,7 @@ export default class ServerFacade {
     followerAlias: string,
     followeeAlias: string
   ): Promise<void> => {
+    console.log("Removing followeer in facade");
     let follower = await ServerFacade.getUserByAlias(followerAlias)
     let followee = await ServerFacade.getUserByAlias(followeeAlias)
 
@@ -117,23 +120,29 @@ export default class ServerFacade {
   /*==============
   Status Methods
   ==============*/
-  public static createStatus = async (message: string): Promise<void> => {
-    let ID = localStorage.getItem("USER_ID")
-    let user = ServerFacade.users.find(u => u.id === ID)
-    if (!user || !ID) {
+  public static createStatus = async (alias: string, message: string): Promise<void> => {
+    let token = localStorage.getItem("TOKEN")
+    if (!token) {
       throw new Error("You must be logged in")
     }
-    // Create status
-    let status = new Status(user.alias, message)
 
-    // Add status to user's story
-    user.story.addStatus(status)
-
-    // Add status to follower's feeds
-    user.followers.forEach(async alias => {
-      let follower: User = await ServerFacade.getUserByAlias(alias)
-      follower.feed.addStatus(status)
+    const res = await fetch(`${URL}/status`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      },
+      body: JSON.stringify({ alias, message }),
     })
+    const json = await res.json();
+
+    // Check for errors
+    if (res.status !== 200) {
+      throw new Error(json.message)
+    }
+
+    return json.status
   }
 
   public static loadMoreStory = async (pag: number, alias: string): Promise<Status[]> => {
@@ -165,7 +174,7 @@ export default class ServerFacade {
       mode: "cors",
       headers: {
         "Content-Type": "application/json",
-        Authorizaton: token
+        Authorization: token
       }
     })
     const json = await res.json()
@@ -229,7 +238,7 @@ export default class ServerFacade {
 
     // Set auth Token
     localStorage.setItem("TOKEN", json.token)
-
+    console.log("Encrypted password: ", json.user.password);
     // Return new user
     return new User(
       json.user.password,
@@ -272,6 +281,7 @@ export default class ServerFacade {
   }
 
   public static async getUserByAlias(alias: string): Promise<User> {
+    console.log("Getting user")
     if (!alias) {
       throw new Error("Unexpected error")
     }

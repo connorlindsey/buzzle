@@ -48,6 +48,10 @@ const FeedView: React.FC<FeedProps> = ({ alias }) => {
     updateFeed()
   }, [updateFeed, pag])
 
+  if (status === STATUS.LOADING && statuses.length <= 0) {
+    return (<div><h3>Loading...</h3></div>)
+  }
+
   // Check if the story has statuses
   if (statuses.length <= 0) {
     return <h3>Nothing to see here. Go post a status!</h3>

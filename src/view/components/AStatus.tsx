@@ -24,7 +24,7 @@ const AStatus: React.FC<StatusProps> = ({ status }) => {
 
   useEffect(() => {
     getUser()
-  }, [user, status, getUser])
+  }, [getUser])
 
   if (!user) return <></>;
 
