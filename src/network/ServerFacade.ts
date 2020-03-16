@@ -34,7 +34,7 @@ const userE: User = new User(
 )
 
 // Endpoint
-const URL = "https://3kslqr7o7h.execute-api.us-east-1.amazonaws.com/dev"
+const URL = (process.env.NODE_ENV === "production") ? "https://3kslqr7o7h.execute-api.us-east-1.amazonaws.com/dev" : "http://localhost:8080/dev"
 
 export default class ServerFacade {
   static users: User[] = [userA, userB, userC, userD, userE]
@@ -45,34 +45,58 @@ export default class ServerFacade {
     followerAlias: string,
     followeeAlias: string
   ): Promise<void> => {
+    let token = localStorage.getItem("TOKEN")
+    if (!token) {
+      throw new Error("You must be logged in")
+    }
 
-    console.log("Adding followeer in facade");
-    let follower = await ServerFacade.getUserByAlias(followerAlias)
-    let followee = await ServerFacade.getUserByAlias(followeeAlias)
+    const res = await fetch(`${URL}/follow`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      },
+      body: JSON.stringify({ followerAlias, followeeAlias }),
+    })
+    const json = await res.json();
 
-    // Follower is not following followee
-    follower?.addFollowing(followeeAlias)
-    // Followee now has "follower" as a follower
-    followee?.addFollower(followerAlias)
+    // Check for errors
+    if (res.status !== 200) {
+      throw new Error(json.message)
+    }
   }
 
   public static removeFollower = async (
     followerAlias: string,
     followeeAlias: string
   ): Promise<void> => {
-    console.log("Removing followeer in facade");
-    let follower = await ServerFacade.getUserByAlias(followerAlias)
-    let followee = await ServerFacade.getUserByAlias(followeeAlias)
+    let token = localStorage.getItem("TOKEN")
+    if (!token) {
+      throw new Error("You must be logged in")
+    }
+    console.log("Follower", followerAlias)
+    console.log("Followee", followeeAlias)
+    const res = await fetch(`${URL}/unfollow`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token
+      },
+      body: JSON.stringify({ followerAlias, followeeAlias }),
+    })
+    const json = await res.json();
 
-    // Follower is no longer following followee
-    follower?.removeFollowing(followeeAlias)
-    // Followee no longer lists "follower" as a follower
-    followee?.removeFollower(followerAlias)
+    // Check for errors
+    if (res.status !== 200) {
+      throw new Error(json.message)
+    } 
   }
 
   public static loadMoreFollowers = async (pag: number, alias: string): Promise<User[]> => {
     // Load more followers
-    const res = await fetch(`${URL}/followers/${alias}`, {
+    const res = await fetch(`${URL}/followers/${alias}/1`, {
       method: "GET",
       mode: "cors",
     })
@@ -88,7 +112,7 @@ export default class ServerFacade {
 
   public static loadMoreFollowing = async (pag: number, alias: string): Promise<User[]> => {
     // Load more followers
-    const res = await fetch(`${URL}/following/${alias}`, {
+    const res = await fetch(`${URL}/following/${alias}/1`, {
       method: "GET",
       mode: "cors",
     })
@@ -147,7 +171,7 @@ export default class ServerFacade {
 
   public static loadMoreStory = async (pag: number, alias: string): Promise<Status[]> => {
     // Load more followers
-    const res = await fetch(`${URL}/story/${alias}`, {
+    const res = await fetch(`${URL}/story/${alias}/1`, {
       method: "GET",
       mode: "cors",
     })
@@ -169,7 +193,7 @@ export default class ServerFacade {
       throw new Error("You must be logged in")
     }
     console.log("Getting feed", token)
-    const res = await fetch(`${URL}/feed/${alias}`, {
+    const res = await fetch(`${URL}/feed/${alias}/1`, {
       method: "GET",
       mode: "cors",
       headers: {
@@ -186,7 +210,7 @@ export default class ServerFacade {
 
     return json.feed.map(s => new Status(s.alias, s.message))
   }
-  //
+  
   /*==============
   Auth Methods
   ==============*/
@@ -263,6 +287,7 @@ export default class ServerFacade {
     // TODO: Include authToken
     // const formData = new FormData()
     // formData.append("profilePicture", file, file.name)
+    let alias = localStorage.getItem("USER_ALIAS") || "" 
     const res = await fetch(`${URL}/profileImage`, {
       method: "POST",
       mode: "cors",
@@ -270,7 +295,7 @@ export default class ServerFacade {
         "Content-Type": "application/json",
         Authorization: token,
       },
-      body: JSON.stringify({ message: "HEELLO" }),
+      body: JSON.stringify({ alias }),
     })
     const json = await res.json()
 
@@ -313,12 +338,14 @@ export default class ServerFacade {
       throw new Error("You must be logged in")
     }
 
+    let alias = localStorage.getItem("USER_ALIAS") || "" 
     const res = await fetch(`${URL}/signout`, {
       method: "POST",
       mode: "cors",
       headers: {
         Authorization: token,
       },
+      body: JSON.stringify({ alias })
     })
     const json = await res.json()
 
