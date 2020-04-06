@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import Status from '../../model/Status'
 import AStatus from './AStatus'
 import Button from "../style/Button"
@@ -15,21 +15,28 @@ enum STATUS {
 }
 
 const StoryView: React.FC<StoryProps> = ({ alias }) => {
-  // Load the user story
   const [statuses, setStatuses] = useState<Status[]>([])
   const [status, setStatus] = useState<STATUS>(STATUS.DEFAULT)
   const [message, setMessage] = useState<string>()
-  const [pag, setPag] = useState(0)
+  const [key, setKey] = useState("nada")
 
-  const updateStory = useCallback(
-    async () => {
+  // Load intial story
+  useEffect(() => {
+    async function getStory() {
+      setStatuses([])
       setStatus(STATUS.LOADING)
-      if (!alias) {
-        // eslint-disable-next-line
-        alias = localStorage.getItem("USER_ALIAS") || "";
-      }
+
+      // Get user alias if this is the home screen
+      // eslint-disable-next-line
+      if (!alias) alias = localStorage.getItem("USER_ALIAS") || "";
+
       try {
-        setStatuses(await StatusService.loadMoreStory(pag, alias))
+        console.log("Get initial story")
+        const { statuses: newStatuses, key: newKey } = await StatusService.loadMoreStory("nada", alias)
+        console.log('Statuses', newStatuses)
+        console.log(key)
+        setStatuses(newStatuses)
+        setKey(newKey);
         setStatus(STATUS.DEFAULT)
       } catch (e) {
         if (e instanceof Error) {
@@ -40,13 +47,33 @@ const StoryView: React.FC<StoryProps> = ({ alias }) => {
           }, 1500)
         }
       }
-    },
-    [],
-  )
+    }
+    getStory()
+  }, [])
 
-  useEffect(() => {
-    updateStory()
-  }, [updateStory, pag])
+  const loadMore = async () => {
+    setStatus(STATUS.LOADING)
+
+    // Get user alias if this is the home screen
+    // eslint-disable-next-line
+    if (!alias) alias = localStorage.getItem("USER_ALIAS") || "";
+
+    try {
+      console.log("Get initial story")
+      const { statuses: newStatuses, key: newKey } = await StatusService.loadMoreStory(key, alias)
+      setStatuses([ ...statuses, ...newStatuses ])
+      setKey(newKey);
+      setStatus(STATUS.DEFAULT)
+    } catch (e) {
+      if (e instanceof Error) {
+        setMessage(e.message);
+        setStatus(STATUS.DEFAULT)
+        setTimeout(() => {
+          setMessage("")
+        }, 1500)
+      }
+    }
+  }
 
   if (status === STATUS.LOADING && statuses.length <= 0) {
     return (<div><h3>Loading...</h3></div>)
@@ -60,9 +87,9 @@ const StoryView: React.FC<StoryProps> = ({ alias }) => {
   return (
     <div>
       {statuses.map((s, i) => <AStatus status={s} key={i} />)}
-      <Button margin="1rem auto" onClick={() => setPag(pag + 1)}>{status === STATUS.LOADING ? "Loading..." : "See more"}</Button>
+      <Button margin="1rem auto" onClick={loadMore} disabled={status === STATUS.LOADING || key === "noMas"}>{status === STATUS.LOADING ? "Loading..." : "See more"}</Button>
       {message && <h3>{message}</h3>}
-    </div>
+    </div >
   )
 }
 

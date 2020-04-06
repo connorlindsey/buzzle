@@ -38,6 +38,7 @@ export default styled.button<ButtonProps>`
     background-color: ${props => props.theme.grey["600"]};
     border-color: ${props => props.theme.grey["600"]};
     color: #fff;
+    cursor: not-allowed;
   }
 `
 

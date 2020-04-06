@@ -1,43 +1,13 @@
 import User from "../model/User"
 import Status from "../model/Status"
 
-// Dummy data
-const userA: User = new User(
-  "test",
-  "Connor Lindsey",
-  "clindsey",
-  "https://source.unsplash.com/1600x900/?person,mountain,nature"
-)
-const userB: User = new User(
-  "test",
-  "Robert Jordan",
-  "robby",
-  "https://source.unsplash.com/1600x900/?person,mountain,nature"
-)
-const userC: User = new User(
-  "test",
-  "Matt Pope",
-  "matt",
-  "https://source.unsplash.com/1600x900/?person,mountain,nature"
-)
-const userD: User = new User(
-  "test",
-  "Trevor Lane",
-  "tlane",
-  "https://source.unsplash.com/1600x900/?person,mountain,nature"
-)
-const userE: User = new User(
-  "test",
-  "Charles Goodwin",
-  "cgood",
-  "https://source.unsplash.com/1600x900/?person,mountain,nature"
-)
-
 // Endpoint
-const URL = (process.env.NODE_ENV === "production") ? "https://3kslqr7o7h.execute-api.us-east-1.amazonaws.com/dev" : "http://localhost:8080/dev"
+const URL =
+  process.env.NODE_ENV === "production"
+    ? "https://3kslqr7o7h.execute-api.us-east-1.amazonaws.com/dev"
+    : "http://localhost:3000/dev"
 
 export default class ServerFacade {
-  static users: User[] = [userA, userB, userC, userD, userE]
   /*==============
   Follow Methods
   ==============*/
@@ -55,11 +25,11 @@ export default class ServerFacade {
       mode: "cors",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token
+        Authorization: token,
       },
       body: JSON.stringify({ followerAlias, followeeAlias }),
     })
-    const json = await res.json();
+    const json = await res.json()
 
     // Check for errors
     if (res.status !== 200) {
@@ -82,21 +52,21 @@ export default class ServerFacade {
       mode: "cors",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token
+        Authorization: token,
       },
       body: JSON.stringify({ followerAlias, followeeAlias }),
     })
-    const json = await res.json();
+    const json = await res.json()
 
     // Check for errors
     if (res.status !== 200) {
       throw new Error(json.message)
-    } 
+    }
   }
 
-  public static loadMoreFollowers = async (pag: number, alias: string): Promise<User[]> => {
+  public static loadMoreFollowers = async (key: string, alias: string): Promise<any> => {
     // Load more followers
-    const res = await fetch(`${URL}/followers/${alias}/1`, {
+    const res = await fetch(`${URL}/followers/${alias}/${key}`, {
       method: "GET",
       mode: "cors",
     })
@@ -107,12 +77,27 @@ export default class ServerFacade {
       throw new Error(json.message)
     }
 
-    return json.followers.map(u => new User(u.password, u.name, u.alias, u.photo))
+    let tmp: User[] = []
+    for (let i = 0; i < json.followers.length; i++) {
+      try {
+        let res = await ServerFacade.getUserByAlias(json.followers[i].followerAlias)
+        tmp.push(res)
+      } catch (e) {
+        throw new Error(e.message)
+      }
+    }
+
+    let newKey = "noMas"
+    if (json.key) newKey = json.key.followerAlias
+
+    return {
+      users: tmp,
+      key: newKey,
+    }
   }
 
-  public static loadMoreFollowing = async (pag: number, alias: string): Promise<User[]> => {
-    // Load more followers
-    const res = await fetch(`${URL}/following/${alias}/1`, {
+  public static loadMoreFollowing = async (key: string, alias: string): Promise<any> => {
+    const res = await fetch(`${URL}/following/${alias}/${key}`, {
       method: "GET",
       mode: "cors",
     })
@@ -123,7 +108,23 @@ export default class ServerFacade {
       throw new Error(json.message)
     }
 
-    return json.following.map(u => new User(u.password, u.name, u.alias, u.photo))
+    let tmp: User[] = []
+    for (let i = 0; i < json.following.length; i++) {
+      try {
+        let res = await ServerFacade.getUserByAlias(json.following[i].followeeAlias)
+        tmp.push(res)
+      } catch (e) {
+        throw new Error(e.message)
+      }
+    }
+
+    let newKey = "noMas"
+    if (json.key) newKey = json.key.followerAlias
+
+    return {
+      users: tmp,
+      key: newKey,
+    }
   }
 
   public static isFollowing = async (userA: string, userB: string): Promise<boolean> => {
@@ -155,11 +156,11 @@ export default class ServerFacade {
       mode: "cors",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token
+        Authorization: token,
       },
       body: JSON.stringify({ alias, message }),
     })
-    const json = await res.json();
+    const json = await res.json()
 
     // Check for errors
     if (res.status !== 200) {
@@ -169,9 +170,9 @@ export default class ServerFacade {
     return json.status
   }
 
-  public static loadMoreStory = async (pag: number, alias: string): Promise<Status[]> => {
+  public static loadMoreStory = async (key: string, alias: string): Promise<any> => {
     // Load more followers
-    const res = await fetch(`${URL}/story/${alias}/1`, {
+    const res = await fetch(`${URL}/story/${alias}/${key}`, {
       method: "GET",
       mode: "cors",
     })
@@ -182,24 +183,28 @@ export default class ServerFacade {
       throw new Error(json.message)
     }
 
-    return json.story.map(s => new Status(alias, s))
+    let newKey = "noMas"
+    if (json.key) newKey = json.key.createdAt
+
+    let statuses: Status[] = json.story.map((s) => new Status(alias, s.status))
+    return {
+      statuses,
+      key: newKey,
+    }
   }
 
-  public static loadMoreFeed = async (pag: number, alias: string): Promise<Status[]> => {
-    // Load more followers    
-    
+  public static loadMoreFeed = async (key: string, alias: string): Promise<any> => {
     let token = localStorage.getItem("TOKEN")
     if (!token) {
       throw new Error("You must be logged in")
     }
-    console.log("Getting feed", token)
-    const res = await fetch(`${URL}/feed/${alias}/1`, {
+    const res = await fetch(`${URL}/feed/${alias}/${key}`, {
       method: "GET",
       mode: "cors",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token
-      }
+        Authorization: token,
+      },
     })
     const json = await res.json()
 
@@ -208,9 +213,16 @@ export default class ServerFacade {
       throw new Error(json.message)
     }
 
-    return json.feed.map(s => new Status(s.alias, s.message))
+    let newKey = "noMas"
+    if (json.key) newKey = json.key.createdAt
+
+    let statuses: Status[] = json.feed.map((s) => new Status(s.authorAlias, s.status))
+    return {
+      statuses,
+      key: newKey,
+    }
   }
-  
+
   /*==============
   Auth Methods
   ==============*/
@@ -262,7 +274,6 @@ export default class ServerFacade {
 
     // Set auth Token
     localStorage.setItem("TOKEN", json.token)
-    console.log("Encrypted password: ", json.user.password);
     // Return new user
     return new User(
       json.user.password,
@@ -287,7 +298,7 @@ export default class ServerFacade {
     // TODO: Include authToken
     // const formData = new FormData()
     // formData.append("profilePicture", file, file.name)
-    let alias = localStorage.getItem("USER_ALIAS") || "" 
+    let alias = localStorage.getItem("USER_ALIAS") || ""
     const res = await fetch(`${URL}/profileImage`, {
       method: "POST",
       mode: "cors",
@@ -306,7 +317,6 @@ export default class ServerFacade {
   }
 
   public static async getUserByAlias(alias: string): Promise<User> {
-    console.log("Getting user")
     if (!alias) {
       throw new Error("Unexpected error")
     }
@@ -338,14 +348,14 @@ export default class ServerFacade {
       throw new Error("You must be logged in")
     }
 
-    let alias = localStorage.getItem("USER_ALIAS") || "" 
+    let alias = localStorage.getItem("USER_ALIAS") || ""
     const res = await fetch(`${URL}/signout`, {
       method: "POST",
       mode: "cors",
       headers: {
         Authorization: token,
       },
-      body: JSON.stringify({ alias })
+      body: JSON.stringify({ alias }),
     })
     const json = await res.json()
 

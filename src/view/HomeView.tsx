@@ -21,7 +21,7 @@ enum TAB_SELECTION {
 
 const HomeView: React.FC = () => {
   const history = useHistory()
-  const [selection, setSelection] = useState<TAB_SELECTION>(TAB_SELECTION.STORY)
+  const [selection, setSelection] = useState<TAB_SELECTION>(TAB_SELECTION.FEED)
   const [user, setUser] = useState<any>(null)
   const [message, setMessage] = useState<string>("") // Status textarea
   const [status, setStatus] = useState<string>("START");
@@ -48,11 +48,7 @@ const HomeView: React.FC = () => {
       return;
     }
     let msg = await StatusService.createStatus(user.alias, message)
-    if (msg) {
-      alert(msg)
-    } else {
-      alert("Status created successfully!")
-    }
+    console.log(msg)
     setMessage("")
   }
 
@@ -62,7 +58,6 @@ const HomeView: React.FC = () => {
   const logout = async () => {
     let res = await UserService.logout()
     if (res) {
-      alert(res)
       history.push("/")
     } else {
       setMessage("An error has ocurred")

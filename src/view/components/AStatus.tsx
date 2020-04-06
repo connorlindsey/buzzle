@@ -11,15 +11,16 @@ interface StatusProps {
 }
 
 const AStatus: React.FC<StatusProps> = ({ status }) => {
+  console.log(status)
   const [user, setUser] = useState<User>()
   const getUser = useCallback(
     async () => {
-      let user = await UserService.getUserByAlias(status.alias)
+      let user = await UserService.getUserByAlias(status.authorAlias)
       if (user) {
         setUser(user)
       }
     },
-    [status.alias],
+    [status.authorAlias],
   )
 
   useEffect(() => {
@@ -33,12 +34,12 @@ const AStatus: React.FC<StatusProps> = ({ status }) => {
       <ProfileInfo>
         <ProfileImg src={user.photo} alt="Profile" />
         <Col>
-          <StyledName as={Link} to={`/profile/${status.alias}`}>{user.name}</StyledName>
-          <StyledAlias as={Link} to={`/profile/${status.alias}`}>@{user.alias}</StyledAlias>
+          <StyledName as={Link} to={`/profile/${status.authorAlias}`}>{user.name}</StyledName>
+          <StyledAlias as={Link} to={`/profile/${status.authorAlias}`}>@{user.alias}</StyledAlias>
           <DaMessage>
             {/* Parse Links and Mentions here */}
             <Linkify>
-              {status.message.split(" ").map((word, i) => {
+              {status.status.split(" ").map((word, i) => {
                 if (word[0] === "@") {
                   return <Mention to={`/profile/${word.substr(1, word.length - 1)}`} key={i}>{word}</Mention>
                 } else {

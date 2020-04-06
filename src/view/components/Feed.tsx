@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import AStatus from './AStatus'
 import Button from "../style/Button"
 import StatusService from '../../services/StatusService'
@@ -16,21 +16,29 @@ enum STATUS {
 
 // Component which renders a list of statuses
 const FeedView: React.FC<FeedProps> = ({ alias }) => {
-  // Load the user feed
   const [statuses, setStatuses] = useState<Status[]>([])
   const [status, setStatus] = useState<STATUS>(STATUS.DEFAULT)
   const [message, setMessage] = useState<string>()
-  const [pag, setPag] = useState(0)
+  const [key, setKey] = useState("nada")
 
-  const updateFeed = useCallback(
-    async () => {
+
+  // Load intial feed
+  useEffect(() => {
+    async function getFeed() {
+      setStatuses([])
       setStatus(STATUS.LOADING)
-      if (!alias) {
-        // eslint-disable-next-line
-        alias = localStorage.getItem("USER_ALIAS") || "";
-      }
+
+      // Get user alias if this is the home screen
+      // eslint-disable-next-line
+      if (!alias) alias = localStorage.getItem("USER_ALIAS") || "";
+
       try {
-        setStatuses(await StatusService.loadMoreFeed(pag, alias))
+        console.log("Get initial feed")
+        const { statuses: newStatuses, key: newKey } = await StatusService.loadMoreFeed("nada", alias)
+        console.log('Statuses', newStatuses)
+        console.log(key)
+        setStatuses(newStatuses)
+        setKey(newKey);
         setStatus(STATUS.DEFAULT)
       } catch (e) {
         if (e instanceof Error) {
@@ -41,12 +49,33 @@ const FeedView: React.FC<FeedProps> = ({ alias }) => {
           }, 1500)
         }
       }
-    },
-    [],
-  )
-  useEffect(() => {
-    updateFeed()
-  }, [updateFeed, pag])
+    }
+    getFeed()
+  }, [])
+
+  const loadMore = async () => {
+    setStatus(STATUS.LOADING)
+
+    // Get user alias if this is the home screen
+    // eslint-disable-next-line
+    if (!alias) alias = localStorage.getItem("USER_ALIAS") || "";
+
+    try {
+      console.log("Get initial feed")
+      const { statuses: newStatuses, key: newKey } = await StatusService.loadMoreFeed(key, alias)
+      setStatuses([...statuses, ...newStatuses])
+      setKey(newKey);
+      setStatus(STATUS.DEFAULT)
+    } catch (e) {
+      if (e instanceof Error) {
+        setMessage(e.message);
+        setStatus(STATUS.DEFAULT)
+        setTimeout(() => {
+          setMessage("")
+        }, 1500)
+      }
+    }
+  }
 
   if (status === STATUS.LOADING && statuses.length <= 0) {
     return (<div><h3>Loading...</h3></div>)
@@ -61,7 +90,7 @@ const FeedView: React.FC<FeedProps> = ({ alias }) => {
   return (
     <div>
       {statuses.map((s, i) => <AStatus status={s} key={i} />)}
-      <Button margin="1rem auto" onClick={() => setPag(pag + 1)}>{status === STATUS.LOADING ? "Loading..." : "See more"}</Button>
+      <Button margin="1rem auto" onClick={loadMore} disabled={status === STATUS.LOADING || key === "noMas"}>{status === STATUS.LOADING ? "Loading..." : "See more"}</Button>
       {message && <h3>{message}</h3>}
     </div>
   )

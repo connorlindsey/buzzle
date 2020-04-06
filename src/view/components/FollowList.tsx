@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import User from "../../model/User"
+import React, { useState, useEffect } from 'react'
 import FollowerCard from './FollowerCard'
 import Button from "../style/Button"
 import FollowerService from '../../services/FollowerService'
@@ -17,24 +16,34 @@ enum STATUS {
 
 // Display a list of users whether they are followers or following
 const FollowList: React.FC<FollowListProps> = ({ alias, followers }) => {
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<any[]>([])
   const [status, setStatus] = useState<STATUS>(STATUS.DEFAULT)
   const [message, setMessage] = useState<string>()
-  const [pag, setPag] = useState(0)
+  const [key, setKey] = useState("nada")
 
-  const getUsers = useCallback(
-    async () => {
+  // Load user list on initial render
+  useEffect(() => {
+    async function getUsers() {
+      setKey("nada")
+      setUsers([])
       setStatus(STATUS.LOADING)
-      if (!alias) {
-        // eslint-disable-next-line
-        alias = localStorage.getItem("USER_ALIAS") || "";
-      }
+
+      // Get user alias if this is the home screen
+      // eslint-disable-next-line
+      if (!alias) alias = localStorage.getItem("USER_ALIAS") || "";
+
       try {
-        // TODO: Get more users if pagination has increased
         if (followers) {
-          setUsers(await FollowerService.loadMoreFollowers(pag, alias))
+          const { users, key: newKey } = await FollowerService.loadMoreFollowers("nada", alias)
+          setUsers(users)
+          setKey(newKey)
         } else {
-          setUsers(await FollowerService.loadMoreFollowing(pag, alias))
+          console.log("Get initial following")
+          const { users, key: newKey } = await FollowerService.loadMoreFollowing("nada", alias)
+          console.log('users', users)
+          console.log(key)
+          setUsers(users);
+          setKey(newKey);
         }
         setStatus(STATUS.DEFAULT)
       } catch (e) {
@@ -46,14 +55,38 @@ const FollowList: React.FC<FollowListProps> = ({ alias, followers }) => {
           }, 1500)
         }
       }
-    },
-    [followers],
-  )
-
-  useEffect(() => {
+    }
     getUsers()
+  }, [followers])
+
+  const loadMore = async () => {
+    setStatus(STATUS.LOADING)
+
+    // Get user alias if this is the home screen
     // eslint-disable-next-line
-  }, [getUsers, pag])
+    if (!alias) alias = localStorage.getItem("USER_ALIAS") || "";
+
+    try {
+      if (followers) {
+        const { users: newUsers, key: newKey } = await FollowerService.loadMoreFollowers(key, alias)
+        setUsers([...users, ...newUsers])
+        setKey(newKey)
+      } else {
+        const { users: newUsers, key: newKey } = await FollowerService.loadMoreFollowing(key, alias)
+        setUsers([...users, ...newUsers]);
+        setKey(newKey);
+      }
+      setStatus(STATUS.DEFAULT)
+    } catch (e) {
+      if (e instanceof Error) {
+        setMessage(e.message);
+        setStatus(STATUS.DEFAULT)
+        setTimeout(() => {
+          setMessage("")
+        }, 1500)
+      }
+    }
+  }
 
   if (status === STATUS.LOADING && users.length <= 0) {
     return (<div><h3>Loading...</h3></div>)
@@ -65,8 +98,8 @@ const FollowList: React.FC<FollowListProps> = ({ alias, followers }) => {
 
   return (
     <div>
-      {users.map(user => <FollowerCard follower={user} key={user.alias} />)}
-      <Button margin="1rem auto" onClick={() => setPag(pag + 1)} disabled={status === STATUS.LOADING}>{status === STATUS.LOADING ? "Loading..." : "See more"}</Button>
+      {users.map((user, i) => <FollowerCard follower={user} key={i} />)}
+      <Button margin="1rem auto" onClick={loadMore} disabled={status === STATUS.LOADING || key === "noMas"}>{status === STATUS.LOADING ? "Loading..." : "See more"}</Button>
       {message && <h3>{message}</h3>}
     </div>
   )

@@ -1,5 +1,4 @@
 import ServerFacade from "../network/ServerFacade"
-import User from "../model/User"
 
 // Handle common tasks related to following by communicating between
 // the View and Server
@@ -18,17 +17,17 @@ export default class FollowerService {
     await ServerFacade.addFollower(follower, followee)
   }
 
-  static loadMoreFollowers = async (pag: number, alias: string): Promise<User[]> => {
+  static loadMoreFollowers = async (key: string, alias: string): Promise<any> => {
     try {
-      return await ServerFacade.loadMoreFollowers(pag, alias)
+      return await ServerFacade.loadMoreFollowers(key, alias)
     } catch (e) {
       throw e
     }
   }
 
-  static loadMoreFollowing = async (pag: number, alias: string): Promise<User[]> => {
+  static loadMoreFollowing = async (key: string, alias: string): Promise<any> => {
     try {
-      return await ServerFacade.loadMoreFollowing(pag, alias)
+      return await ServerFacade.loadMoreFollowing(key, alias)
     } catch (e) {
       throw e
     }

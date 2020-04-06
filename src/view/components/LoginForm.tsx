@@ -34,7 +34,7 @@ const LoginForm: React.FC<Props> = ({ setCurrentForm }) => {
     
     // Call login
     const result = await UserService.login(values.alias, values.password)
-
+    console.log(result);
     if (result) {
       // Display Error
       setStatus(STATUS.ERROR)

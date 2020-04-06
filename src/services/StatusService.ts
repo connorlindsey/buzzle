@@ -1,5 +1,4 @@
 import ServerFacade from "../network/ServerFacade"
-import Status from "../model/Status"
 
 // Handle common tasks related to statuses by communicating between
 // the View and Server
@@ -18,7 +17,7 @@ export default class StatusService {
     return ""
   }
 
-  static loadMoreStory = async (pag: number, alias: string): Promise<Status[]> => {
+  static loadMoreStory = async (pag: string, alias: string): Promise<any> => {
     try {
       return await ServerFacade.loadMoreStory(pag, alias)
     } catch (e) {
@@ -26,7 +25,7 @@ export default class StatusService {
     }
   }
 
-  static loadMoreFeed = async (pag: number, alias: string): Promise<Status[]> => {
+  static loadMoreFeed = async (pag: string, alias: string): Promise<any> => {
     try {
       return await ServerFacade.loadMoreFeed(pag, alias)
     } catch (e) {

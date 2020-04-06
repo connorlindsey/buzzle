@@ -26,7 +26,6 @@ export default class UserService {
       var user = await ServerFacade.login(alias, password)
       localStorage.setItem("USER_ALIAS", user.alias)
     } catch (e) {
-      console.error(e)
       if (e instanceof Error) {
         return e.message
       }
