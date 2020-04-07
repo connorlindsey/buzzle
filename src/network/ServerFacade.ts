@@ -283,7 +283,7 @@ export default class ServerFacade {
     )
   }
 
-  public static async updatePicture(file: File): Promise<void> {
+  public static async updatePicture(file: String): Promise<void> {
     // Validate file
     if (!file) {
       throw new Error("No file uploaded")
@@ -293,11 +293,9 @@ export default class ServerFacade {
     if (!token) {
       throw new Error("You must be logged in")
     }
+    console.log(file)
 
     // Upload Image to S3
-    // TODO: Include authToken
-    // const formData = new FormData()
-    // formData.append("profilePicture", file, file.name)
     let alias = localStorage.getItem("USER_ALIAS") || ""
     const res = await fetch(`${URL}/profileImage`, {
       method: "POST",
@@ -306,7 +304,7 @@ export default class ServerFacade {
         "Content-Type": "application/json",
         Authorization: token,
       },
-      body: JSON.stringify({ alias }),
+      body: JSON.stringify({ alias, file }),
     })
     const json = await res.json()
 

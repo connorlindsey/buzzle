@@ -47,7 +47,7 @@ export default class UserService {
     return ""
   }
 
-  static updatePicture = async (file: File): Promise<string> => {
+  static updatePicture = async (file: String): Promise<string> => {
     try {
       await ServerFacade.updatePicture(file)
     } catch (e) {

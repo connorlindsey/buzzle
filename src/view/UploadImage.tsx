@@ -27,19 +27,26 @@ const UploadImage: React.FC = () => {
       return;
     }
 
-    // Get presigned data
-    // Get URL // https://blog.webiny.com/upload-files-to-aws-s3-using-pre-signed-post-data-and-a-lambda-function-7a9fb06d56c1
-    // Call update picture
-    const result = await UserService.updatePicture(file)
-    if (result) {
-      console.log("Error")
-      setStatus(STATUS.ERROR)
-      setErrorMessage(result)
-    } else {
-      console.log("Yay :D")
-      setStatus(STATUS.DONE)
-      history.push("/home")
+    // Get Base64 String
+    let reader: FileReader = new FileReader()
+    reader.onloadend = async () => {
+      if (reader) {
+        let b64: any = reader.result
+        const result = await UserService.updatePicture(b64)
+        if (result) {
+          console.log("Error")
+          setStatus(STATUS.ERROR)
+          setErrorMessage(result)
+        } else {
+          console.log("Yay :D")
+          setStatus(STATUS.DONE)
+          history.push("/home")
+        }
+      }
     }
+    reader.readAsDataURL(file);
+
+
   }
 
   const onChange = (files: FileList | null): void => {
